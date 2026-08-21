@@ -4,6 +4,7 @@ import { useStore } from '../lib/store.jsx'
 import { fmtDoy } from '../i18n/index.js'
 import OnsetChart from '../components/OnsetChart.jsx'
 import { Card, EyebrowLabel, RoundIconButton } from '../components/ui.jsx'
+import Satellite from '../components/Satellite.jsx'
 
 export default function Evidence() {
   const { t, lang, district, districtName, meta } = useStore()
@@ -95,6 +96,8 @@ export default function Evidence() {
           </Card>
         ))}
       </div>
+
+      <Satellite />
 
       <button
         onClick={() => setSourceOpen(!sourceOpen)}

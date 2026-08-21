@@ -98,6 +98,7 @@ We label our own limits. Every unsourced figure carries a **`नमुना आ
 | Rain days, seasonal rainfall, dry spells | ✅ **real** | IMD Pune |
 | Current conditions + 7-day forecast | ✅ **live** | Open-Meteo |
 | Mandi prices (Nashik) | ✅ **real** | Agmarknet via data.gov.in |
+| Satellite vegetation (NDVI) | ✅ **real** | MODIS Terra via NASA GIBS |
 | Season and sowing windows | ✅ computed | date + crop calendar |
 | Per-acre yield, cost, income | ⚠️ **sample** | placeholder — needs CACP tables |
 | Crop water requirement, duration | ⚠️ **sample** | plausible, unsourced |
@@ -133,6 +134,7 @@ So we switched to IMD's ground-station gridded product. **Open-Meteo remains our
 | [IMD Pune gridded rainfall](https://www.imdpune.gov.in/cmpg/Griddata/Rainfall_25_NetCDF.html) | 0.25° daily rainfall, 1985–2025 | no |
 | [Open-Meteo](https://open-meteo.com) | live conditions + 7-day forecast | no |
 | [Agmarknet via data.gov.in](https://data.gov.in/resource/current-daily-price-various-commodities-various-markets-mandi) | daily mandi prices | free key |
+| [NASA GIBS](https://gibs.earthdata.nasa.gov) | MODIS NDVI vegetation imagery | no |
 
 Total cost: **₹0**. No paid APIs.
 
@@ -165,6 +167,14 @@ Computes onset, Theil–Sen slope and Mann–Kendall p-value per district → `s
 cp .env.example .env.local   # paste your data.gov.in key
 python scripts/fetch_mandi_prices.py
 ```
+
+```bash
+python scripts/fetch_satellite_ndvi.py
+```
+Pulls MODIS NDVI composites from NASA GIBS for the district bounding box, measures
+greenness across a cropping year, and writes two static frames plus `src/data/ndvi.json`.
+Records the cloud fraction per date and distinguishes a cloud-obscured reading from a
+date GIBS never published — an empty tile is not a measurement of zero.
 Pulls daily mandi prices → `src/data/prices.json`.
 
 > **Run the price script sparingly.** data.gov.in rate-limits aggressively and signals it with `HTTP 200` and the message `"No query was recieved."` rather than a `429`. The script is deliberately sequential.
