@@ -1,0 +1,76 @@
+@import "tailwindcss";
+
+@theme {
+  /* Type — Tiro for display (has a true italic), Anek for UI, Inter for figures */
+  --font-display: "Tiro Devanagari Hindi", Georgia, serif;
+  --font-ui: "Anek Devanagari", system-ui, sans-serif;
+  --font-num: "Inter", system-ui, sans-serif;
+
+  /* Canvas + surfaces */
+  --color-canvas: #dcd7c9;
+  --color-screen: #e9e5da;
+  --color-card: #ffffff;
+  --color-chip: #efece2;
+  --color-hair: #f2efe6;
+
+  /* Ink */
+  --color-ink: #17150f;
+  --color-ink-2: #4a4638;
+  --color-muted: #6e6a5e;
+  --color-faint: #8a8574;
+  --color-ghost: #a8a292;
+  --color-hint: #c8c3b4;
+  --color-track: #d6d1c2;
+
+  /* Green — growth, go, good */
+  --color-grow: #2e6b3f;
+  --color-grow-d: #245231;
+  --color-grow-l: #e6efe4;
+
+  /* Orange — reserved for risk */
+  --color-warn: #c1531b;
+  --color-warn-d: #8c3a0f;
+  --color-warn-m: #a05a2e;
+  --color-warn-l: #fbeadf;
+}
+
+* { box-sizing: border-box; }
+html, body, #root { height: 100%; }
+
+body {
+  margin: 0;
+  font-family: var(--font-ui);
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* figures align in cards */
+.num { font-family: var(--font-num); font-variant-numeric: tabular-nums; }
+.display { font-family: var(--font-display); }
+
+/* hidden scrollbars on the horizontal rails */
+.sc { scrollbar-width: none; -ms-overflow-style: none; }
+.sc::-webkit-scrollbar { display: none; }
+
+@keyframes ritufade {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+.fade { animation: ritufade .28s ease both; }
+
+/* the app is a phone; never let a stray element widen it */
+#root { overflow-x: hidden; }
+
+/* Rain drift for the seasonal backdrop — slow, low-contrast, and switched off
+   entirely when the user asks for reduced motion. */
+@keyframes ritu-rain-drift {
+  from { transform: translateY(-70px); }
+  to   { transform: translateY(0); }
+}
+.ritu-rain { animation: ritu-rain-drift 1.1s linear infinite; will-change: transform; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ritu-rain { animation: none; }
+  .fade { animation: none; }
+}
