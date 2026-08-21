@@ -4,6 +4,7 @@ import { fmtWindow, getSeasons, getWaterLevels, rupees } from '../i18n/index.js'
 import { cropById } from '../data/crops.js'
 import { priceFor, priceSource } from '../lib/prices.js'
 import { Card, Chip, EyebrowLabel, RoundIconButton, SampleBadge } from '../components/ui.jsx'
+import Rotation from '../components/Rotation.jsx'
 
 export default function CropDetail() {
   const { t, lang, acres, districtId } = useStore()
@@ -108,6 +109,8 @@ export default function CropDetail() {
         <div className="display mt-2 text-[38px] text-white">{fmtWindow(c.window, lang)}</div>
         <div className="mt-1 text-[15px] text-hint">{c.windowNote[lang]}</div>
       </div>
+
+      <Rotation crop={c} />
     </div>
   )
 }

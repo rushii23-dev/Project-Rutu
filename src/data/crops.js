@@ -18,6 +18,9 @@ export const SEASON_KEYS = ['kharif', 'rabi', 'summer']
 export const SAMPLE_CROPS = [
   {
     id: 'soy',
+    // soil effect: nitrogen balance and organic-matter contribution.
+    // Crop-type agronomy, not a measurement -- see rotation.js.
+    soil: { legume: true, n: +2, om: +1, note: 'fix' },
     season: 'kharif',
     water: 'mid',
     duration: [95, 105],
@@ -57,6 +60,9 @@ export const SAMPLE_CROPS = [
   },
   {
     id: 'maize',
+    // soil effect: nitrogen balance and organic-matter contribution.
+    // Crop-type agronomy, not a measurement -- see rotation.js.
+    soil: { legume: false, n: -1, om: +2, note: 'residue' },
     season: 'kharif',
     water: 'mid',
     duration: [100, 110],
@@ -96,6 +102,9 @@ export const SAMPLE_CROPS = [
   },
   {
     id: 'bajra',
+    // soil effect: nitrogen balance and organic-matter contribution.
+    // Crop-type agronomy, not a measurement -- see rotation.js.
+    soil: { legume: false, n: -1, om: +1, note: 'residue' },
     season: 'kharif',
     water: 'low',
     duration: [80, 90],
@@ -135,6 +144,9 @@ export const SAMPLE_CROPS = [
   },
   {
     id: 'cotton',
+    // soil effect: nitrogen balance and organic-matter contribution.
+    // Crop-type agronomy, not a measurement -- see rotation.js.
+    soil: { legume: false, n: -2, om: -1, note: 'heavy' },
     season: 'kharif',
     water: 'high',
     duration: [160, 180],
@@ -174,6 +186,9 @@ export const SAMPLE_CROPS = [
   },
   {
     id: 'wheat',
+    // soil effect: nitrogen balance and organic-matter contribution.
+    // Crop-type agronomy, not a measurement -- see rotation.js.
+    soil: { legume: false, n: -1, om: +1, note: 'residue' },
     season: 'rabi',
     water: 'mid',
     duration: [110, 120],
@@ -213,6 +228,9 @@ export const SAMPLE_CROPS = [
   },
   {
     id: 'gram',
+    // soil effect: nitrogen balance and organic-matter contribution.
+    // Crop-type agronomy, not a measurement -- see rotation.js.
+    soil: { legume: true, n: +2, om: +1, note: 'fix' },
     season: 'rabi',
     water: 'low',
     duration: [95, 105],
@@ -252,6 +270,9 @@ export const SAMPLE_CROPS = [
   },
   {
     id: 'onion',
+    // soil effect: nitrogen balance and organic-matter contribution.
+    // Crop-type agronomy, not a measurement -- see rotation.js.
+    soil: { legume: false, n: -2, om: -1, note: 'heavy' },
     season: 'rabi',
     water: 'high',
     duration: [120, 130],
@@ -291,6 +312,9 @@ export const SAMPLE_CROPS = [
   },
   {
     id: 'ground',
+    // soil effect: nitrogen balance and organic-matter contribution.
+    // Crop-type agronomy, not a measurement -- see rotation.js.
+    soil: { legume: true, n: +2, om: +1, note: 'fix' },
     season: 'summer',
     water: 'mid',
     duration: [105, 115],
@@ -330,6 +354,9 @@ export const SAMPLE_CROPS = [
   },
   {
     id: 'moong',
+    // soil effect: nitrogen balance and organic-matter contribution.
+    // Crop-type agronomy, not a measurement -- see rotation.js.
+    soil: { legume: true, n: +1, om: +1, note: 'fix' },
     season: 'summer',
     water: 'low',
     duration: [65, 75],

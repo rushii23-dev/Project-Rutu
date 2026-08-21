@@ -10,6 +10,7 @@ import CropDetail from './screens/CropDetail.jsx'
 import Weather from './screens/Weather.jsx'
 import Evidence from './screens/Evidence.jsx'
 import Profile from './screens/Profile.jsx'
+import Policy from './screens/Policy.jsx'
 
 /** Screens behind onboarding bounce to welcome until the profile exists. */
 function Gate({ children }) {
@@ -17,7 +18,8 @@ function Gate({ children }) {
   return onboarded ? children : <Navigate to="/" replace />
 }
 
-export default function App() {
+/** The farmer app — everything inside the phone. */
+function FarmerApp() {
   return (
     <PhoneFrame>
       <Routes>
@@ -32,5 +34,15 @@ export default function App() {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </PhoneFrame>
+  )
+}
+
+export default function App() {
+  return (
+    <Routes>
+      {/* the state surface is laptop-sized and sits outside the phone frame */}
+      <Route path="/policy" element={<Policy />} />
+      <Route path="*" element={<FarmerApp />} />
+    </Routes>
   )
 }
