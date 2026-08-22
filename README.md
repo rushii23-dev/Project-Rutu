@@ -74,7 +74,7 @@ Mobile-first PWA, Marathi-first, four buttons, one answer per screen.
 | **Weather** | Live conditions, dated 7-day forecast, and what to actually do about it |
 | **Evidence** | The 41-year onset chart, supporting shifts, and full data provenance |
 | **`/policy`** | State surface: all 36 districts mapped by onset shift and significance, plus the federation model |
-| **Ask** | Voice or typed questions in any of the three languages, answered from verified data |
+| **Ask** | Typed questions in any of the three languages, answered from verified data |
 | **Profile** | Edit details in place, switch district, the cropping year with today marked, and today's best-paying markets |
 
 ### Details that matter
@@ -87,7 +87,7 @@ Mobile-first PWA, Marathi-first, four buttons, one answer per screen.
 
 **Three languages.** Marathi, Hindi, English — every string, including crop copy and agronomic reasoning.
 
-**Ask it out loud.** Speech recognition and synthesis come from the browser's Web Speech API — free, keyless, and no audio leaves the device. Answers are **retrieved, never generated**: every reply is composed from the IMD series, the live forecast, real mandi prices or the rotation rules, and carries the source on screen. A model that hallucinates a sowing date would cause the exact failure this project exists to prevent. Crop names are matched on oblique forms too, because a farmer says *कांद्याचा*, not *कांदा*.
+**Ask it a question.** Answers are **retrieved, never generated**: every reply is composed from the IMD series, the live forecast, real mandi prices or the rotation rules, and carries the source on screen. A model that hallucinates a sowing date would cause the exact failure this project exists to prevent. Crop names are matched on oblique forms too, because a farmer says *कांद्याचा*, not *कांदा*.
 
 **Installable.** Service worker precaches the shell, the data and the satellite frames, so it opens offline on 2G.
 

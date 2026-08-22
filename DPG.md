@@ -85,7 +85,7 @@ This is where most agricultural advisory tools fail, so it is stated in detail.
 
 **We record our own wrong turns.** The project initially used ERA5 reanalysis and obtained per-district results that did not hold up against the literature on reanalysis precipitation trends over India. We switched to IMD ground-station data and documented why in the README. ERA5 remains the live forecast; it is not the evidence base.
 
-**Questions are answered by retrieval, not generation.** The voice assistant composes every answer from data the app already holds — IMD onset, live forecast, Agmarknet prices, rotation rules — and never from a language model. A model that hallucinates a sowing date would cause exactly the germination failure this project exists to prevent, and a farmer cannot audit a fluent wrong answer. When no intent matches, it says it did not understand rather than guessing.
+**Questions are answered by retrieval, not generation.** The question screen composes every answer from data the app already holds — IMD onset, live forecast, Agmarknet prices, rotation rules — and never from a language model. A model that hallucinates a sowing date would cause exactly the germination failure this project exists to prevent, and a farmer cannot audit a fluent wrong answer. When no intent matches, it says it did not understand rather than guessing.
 
 **Absolute soil figures are withheld.** The rotation engine reports a *relative* nitrogen balance derived from crop type, not an organic-carbon percentage. Without a Soil Health Card reading for a specific field, an absolute figure would be fabricated.
 
