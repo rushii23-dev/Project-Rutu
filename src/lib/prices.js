@@ -23,8 +23,12 @@ export function priceFor(cropId, districtId) {
       high: local.high,
       scope: 'district',
       market: local.bestMarket,
+      bestTaluka: local.bestTaluka || '',
       bestPrice: local.bestPrice,
       markets: local.markets,
+      // one row per market, best-paying first. Agmarknet market names carry
+      // the taluka, which is the finest location the source publishes.
+      stalls: local.stalls || [],
       date: local.date,
     }
   }

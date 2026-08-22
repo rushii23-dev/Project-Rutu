@@ -4,6 +4,7 @@ import { useStore } from '../lib/store.jsx'
 import { fmtDate, getSeasons, getWaterLevels, rupees } from '../i18n/index.js'
 import { SAMPLE_CROPS, SEASON_KEYS } from '../data/crops.js'
 import { priceFor } from '../lib/prices.js'
+import { cropWindowStatus } from '../lib/season.js'
 import { Chip, SampleBadge } from '../components/ui.jsx'
 
 export default function Crops() {
@@ -56,9 +57,22 @@ export default function Crops() {
               <Chip className="text-[13px]">
                 {c.duration[0]}–{c.duration[1]} {t('days')}
               </Chip>
-              <Chip className="text-[13px]">
-                {t('sowing')} {fmtDate(c.sow, lang)}
-              </Chip>
+              {(() => {
+                const w = cropWindowStatus(c)
+                return (
+                  <span
+                    className={`rounded-2xl px-3.5 py-1.5 text-[13px] font-medium ${
+                      w.phase === 'open'
+                        ? 'bg-grow text-white'
+                        : w.phase === 'passed'
+                          ? 'bg-chip text-hint line-through'
+                          : 'bg-chip text-ink-2'
+                    }`}
+                  >
+                    {t('sowing')} {fmtDate(c.sow, lang)}
+                  </span>
+                )
+              })()}
             </div>
             <div className="mt-3.5 flex items-baseline gap-2">
               <span className="num text-[26px] font-bold tracking-tight text-ink">

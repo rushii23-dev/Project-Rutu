@@ -33,16 +33,17 @@ COMMODITY_TO_CROP = {
     "Green Gram Dal (Moong Dal)": "moong",
 }
 
-# Agmarknet still uses several pre-rename district spellings. Each of ours maps
-# to the candidates worth trying, first hit wins.
-ALIASES = {
-    "Ch.Sambhajinagar": ["Chhatrapati Sambhajinagar", "Aurangabad"],
-    "Dharashiv": ["Dharashiv(Usmanabad)", "Osmanabad", "Usmanabad"],
-    "Ahmednagar": ["Ahmednagar", "Ahilyanagar"],
-    "Mumbai City": ["Mumbai"],
-    "Mumbai Suburban": ["Mumbai"],
-    "Buldhana": ["Buldhana", "Buldana"],
-    "Gondia": ["Gondia", "Gondiya"],
+# Agmarknet uses several pre-rename spellings. Map them onto our district ids.
+FROM_AGMARK = {
+    "Chhatrapati Sambhajinagar": "Ch.Sambhajinagar",
+    "Aurangabad": "Ch.Sambhajinagar",
+    "Dharashiv(Usmanabad)": "Dharashiv",
+    "Osmanabad": "Dharashiv",
+    "Usmanabad": "Dharashiv",
+    "Ahilyanagar": "Ahmednagar",
+    "Mumbai": "Mumbai City",
+    "Buldana": "Buldhana",
+    "Gondiya": "Gondia",
 }
 
 
@@ -65,73 +66,110 @@ def districts():
     return [x["en"] for x in d["districts"]]
 
 
-def call(district_name, limit=500):
+def fetch_state(limit=5000):
+    """One call for the whole state.
+
+    Per-district queries are not just slower, they HANG: the API takes the full
+    timeout to answer a filter that matches nothing, so the 6 districts with no
+    arrivals on a given day cost a minute each. A single state-wide query returns
+    every market in the state in about five seconds, and we group locally.
+    """
     q = urllib.parse.urlencode({
         "api-key": API_KEY, "format": "json", "limit": limit,
-        "filters[state]": "Maharashtra", "filters[district]": district_name,
+        "filters[state]": "Maharashtra",
     })
-    for attempt in range(2):
+    # A User-Agent is not optional here: without one the endpoint stalls until
+    # the timeout instead of answering.
+    req = urllib.request.Request(
+        BASE + "?" + q,
+        headers={"User-Agent": "Mozilla/5.0 (RITU data pipeline)", "Accept": "application/json"},
+    )
+    for attempt in range(3):
         try:
-            with urllib.request.urlopen(BASE + "?" + q, timeout=15) as r:
-                return json.loads(r.read()).get("records", [])
-        except Exception:
-            if attempt == 0:
-                time.sleep(2)
-    return None  # None = request failed, [] = genuinely no data
-
-
-def fetch(ours):
-    for candidate in ALIASES.get(ours, [ours]):
-        recs = call(candidate)
-        if recs:
-            return ours, candidate, recs
-    return ours, None, []
+            with urllib.request.urlopen(req, timeout=60) as r:
+                payload = json.loads(r.read())
+                return payload.get("records", [])
+        except Exception as e:
+            log(f"  attempt {attempt+1}/3 failed: {type(e).__name__}")
+            time.sleep(4 * (attempt + 1))
+    return []
 
 
 rows = []
-names = districts()
-failed, empty = [], []
+records = fetch_state()
+log(f"fetched {len(records)} market records for Maharashtra")
 
-for i, (ours, used, recs) in enumerate((fetch(n) for n in names), 1):
-    kept = 0
-    for r in recs:
-        crop = COMMODITY_TO_CROP.get(r.get("commodity"))
-        if not crop:
-            continue
-        try:
-            modal = float(r["modal_price"])
-        except (KeyError, TypeError, ValueError):
-            continue
-        if modal <= 0:
-            continue
-        rows.append({
-            "district": ours, "crop": crop, "market": r.get("market", ""),
-            "modal": modal,
-            "min": float(r.get("min_price") or modal),
-            "max": float(r.get("max_price") or modal),
-            "date": r.get("arrival_date", ""),
-        })
-        kept += 1
-    if not recs:
-        empty.append(ours)
-    log(f"[{i:2}/{len(names)}] {ours:18} as {str(used):26} {len(recs):4} recs, {kept:3} matched")
+seen_districts = set()
+for r in records:
+    dist = (r.get("district") or "").strip()
+    seen_districts.add(dist)
+    crop = COMMODITY_TO_CROP.get(r.get("commodity"))
+    if not crop:
+        continue
+    try:
+        modal = float(r["modal_price"])
+    except (KeyError, TypeError, ValueError):
+        continue
+    if modal <= 0:
+        continue
+    rows.append({
+        "district": FROM_AGMARK.get(dist, dist), "crop": crop, "market": r.get("market", ""),
+        "modal": modal,
+        "min": float(r.get("min_price") or modal),
+        "max": float(r.get("max_price") or modal),
+        "date": r.get("arrival_date", ""),
+    })
+
+log(f"  {len(seen_districts)} districts reported arrivals, "
+    f"{len(rows)} records match a crop we track")
 
 # --- per district+crop summary ---------------------------------------------
 by = collections.defaultdict(list)
 for r in rows:
     by[(r["district"], r["crop"])].append(r)
 
+def clean_market(name):
+    """'Lasalgaon(Niphad) APMC' -> ('Lasalgaon', 'Niphad').
+
+    Agmarknet market names carry the taluka in parentheses, which is the finest
+    location the source actually publishes. We surface that rather than inventing
+    a taluka lookup of our own.
+    """
+    n = (name or "").replace(" APMC", "").replace("APMC", "").strip()
+    # a few markets are published in shouty full-form; title-case them
+    if n.isupper() and len(n) > 12:
+        n = n.title().replace("Agriculture Produce Market Comitee ", "")
+        n = n.replace("Agriculture Produce Market Committee ", "")
+    taluka = ""
+    if "(" in n and ")" in n:
+        taluka = n[n.index("(") + 1:n.index(")")].strip()
+        n = n[:n.index("(")].strip()
+    return n, taluka
+
+
 per_district = collections.defaultdict(dict)
 for (dist, crop), rs in by.items():
     modals = sorted(x["modal"] for x in rs)
     best = max(rs, key=lambda x: x["modal"])
+    # one entry per market, best-paying first — this is the taluka-level view
+    stalls = []
+    seen = set()
+    for r in sorted(rs, key=lambda x: -x["modal"]):
+        mkt, taluka = clean_market(r["market"])
+        if mkt in seen:
+            continue
+        seen.add(mkt)
+        stalls.append({"m": mkt, "t": taluka, "p": round(r["modal"])})
+    bm, bt = clean_market(best["market"])
     per_district[dist][crop] = {
         "modal": round(statistics.median(modals)),
         "low": round(min(x["min"] for x in rs)),
         "high": round(max(x["max"] for x in rs)),
-        "markets": len(rs),
-        "bestMarket": best["market"],
+        "markets": len(seen),
+        "bestMarket": bm,
+        "bestTaluka": bt,
         "bestPrice": round(best["modal"]),
+        "stalls": stalls[:8],
         "date": rs[0]["date"],
     }
 
@@ -160,7 +198,9 @@ payload = {
         "unit": "INR per quintal (100 kg)",
         "fetched": datetime.datetime.now().strftime("%Y-%m-%d"),
     },
-    "coverage": sorted(per_district.keys()),
+    # The query is state-wide, so EVERY district was fetched. Districts absent
+    # from `districts` had no arrivals today — which is a fact, not a gap.
+    "coverage": districts(),
     "state": state,
     "districts": dict(per_district),
 }
@@ -168,7 +208,8 @@ json.dump(payload, open(OUT, "w", encoding="utf-8"), ensure_ascii=False, separat
 
 log(f"\nwrote {OUT}")
 log(f"  rows kept: {len(rows)} | districts with prices: {len(per_district)}")
-log(f"  no arrivals / not found: {', '.join(empty) if empty else 'none'}")
+missing = [d for d in districts() if d not in per_district]
+log(f"  no arrivals today: {', '.join(missing) if missing else 'none'}")
 log("  state medians: " + ", ".join(f"{k}={v['modal']}" for k, v in sorted(state.items())))
 nsk = per_district.get("Nashik", {})
 if nsk:

@@ -97,6 +97,6 @@ Stated plainly, because a public good that hides its gaps is not one:
 
 - **Per-acre yield and cost** are placeholders. Income figures are badged as samples until sourced from CACP tables.
 - **Crop water requirements and sowing windows** are agronomically plausible but not yet cited to a state package of practices.
-- **Prices currently cover Nashik only.** Other districts report "not yet fetched" rather than implying no arrivals.
+- **Prices cover all 36 districts**, fetched state-wide each run. Districts absent from a day's data had no arrivals, which the interface says; a crop with no local arrivals falls back to the state median, labelled as such.
 - **Soil Health Card N-P-K is not integrated.** Until it is, soil output stays relative.
 - **The disease diagnostic is not built.** When it is, it will be trained on PlantVillage, which is not field-collected Indian data — a limitation that will be stated in the interface, not just the docs.

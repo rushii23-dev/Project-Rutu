@@ -102,7 +102,7 @@ We label our own limits. Every unsourced figure carries a **`नमुना आ
 | Monsoon onset, trends, significance | ✅ **real** | IMD Pune, 0.25° grid, 1985–2025 |
 | Rain days, seasonal rainfall, dry spells | ✅ **real** | IMD Pune |
 | Current conditions + 7-day forecast | ✅ **live** | Open-Meteo |
-| Mandi prices (Nashik) | ✅ **real** | Agmarknet via data.gov.in |
+| Mandi prices, all 36 districts + market level | ✅ **real** | Agmarknet via data.gov.in |
 | Satellite vegetation (NDVI) | ✅ **real** | MODIS Terra via NASA GIBS |
 | Season and sowing windows | ✅ computed | date + crop calendar |
 | Per-acre yield, cost, income | ⚠️ **sample** | placeholder — needs CACP tables |

@@ -5,6 +5,7 @@ import { cropById } from '../data/crops.js'
 import { priceFor, priceSource } from '../lib/prices.js'
 import { Card, Chip, EyebrowLabel, RoundIconButton, SampleBadge } from '../components/ui.jsx'
 import Rotation from '../components/Rotation.jsx'
+import { cropWindowStatus } from '../lib/season.js'
 
 export default function CropDetail() {
   const { t, lang, acres, districtId } = useStore()
@@ -15,6 +16,12 @@ export default function CropDetail() {
   const seasonNames = getSeasons(lang)
   const waterNames = getWaterLevels(lang)
   const price = priceFor(c.id, districtId)
+  const win = cropWindowStatus(c)
+  const winLabel = {
+    open: t('winOpenNow', { n: win.days }),
+    upcoming: t('winUpcoming', { n: win.days }),
+    passed: t('winPassed', { n: win.days }),
+  }[win.phase]
 
   return (
     <div className="px-5 pb-[130px] pt-4">
@@ -56,13 +63,46 @@ export default function CropDetail() {
             </div>
             {price.scope === 'district' && price.market ? (
               <div className="mt-2.5 text-[15px] text-muted">
-                {t('bestMarket')}: <b className="text-ink">{price.market}</b>{' '}
+                {t('bestMarket')}: <b className="text-ink">{price.market}</b>
+                {price.bestTaluka ? (
+                  <span className="text-faint"> ({price.bestTaluka})</span>
+                ) : null}{' '}
                 <span className="num">₹{price.bestPrice.toLocaleString('en-IN')}</span>
               </div>
             ) : null}
-            <div className="num mt-1 text-[11px] text-faint">
-              Agmarknet · {price.date}
-            </div>
+            <div className="num mt-1 text-[11px] text-faint">Agmarknet · {price.date}</div>
+
+            {/* every market that traded today, best-paying first — this is the
+                sell-where decision, at the finest resolution the source gives */}
+            {price.stalls && price.stalls.length > 1 ? (
+              <div className="mt-4 border-t border-hair pt-3">
+                <div className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-faint">
+                  {t('nearbyMarkets')}
+                </div>
+                <div className="flex flex-col">
+                  {price.stalls.map((st, i) => (
+                    <div
+                      key={st.m + i}
+                      className={`flex items-baseline justify-between py-2 ${
+                        i === price.stalls.length - 1 ? '' : 'border-b border-hair'
+                      }`}
+                    >
+                      <span className="min-w-0 truncate pr-3 text-[15px] text-ink">
+                        {st.m}
+                        {st.t ? <span className="text-faint"> · {st.t}</span> : null}
+                      </span>
+                      <span
+                        className={`num flex-none text-[15px] font-semibold ${
+                          i === 0 ? 'text-grow' : 'text-ink-2'
+                        }`}
+                      >
+                        ₹{st.p.toLocaleString('en-IN')}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : null}
           </>
         ) : (
           <div className="mt-2 text-[17px] font-medium text-warn-m">
@@ -107,7 +147,19 @@ export default function CropDetail() {
       <div className="mt-3.5 rounded-[28px] bg-ink p-6">
         <EyebrowLabel tone="ghost">{t('sowingWindow')}</EyebrowLabel>
         <div className="display mt-2 text-[38px] text-white">{fmtWindow(c.window, lang)}</div>
-        <div className="mt-1 text-[15px] text-hint">{c.windowNote[lang]}</div>
+        {/* a window without "where are we now" reads as an instruction */}
+        <div
+          className={`mt-2 inline-block rounded-2xl px-3 py-1.5 text-[14px] font-semibold ${
+            win.phase === 'open'
+              ? 'bg-grow text-white'
+              : win.phase === 'upcoming'
+                ? 'bg-white/15 text-white'
+                : 'bg-warn/25 text-warn-l'
+          }`}
+        >
+          {winLabel}
+        </div>
+        <div className="mt-2.5 text-[15px] text-hint">{c.windowNote[lang]}</div>
       </div>
 
       <Rotation crop={c} />

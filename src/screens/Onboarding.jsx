@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useStore } from '../lib/store.jsx'
 import { fmtWindow } from '../i18n/index.js'
+import { sowingStatus } from '../lib/season.js'
 import { Card, PrimaryButton } from '../components/ui.jsx'
 import { SAMPLE_CROPS } from '../data/crops.js'
 
@@ -14,7 +15,9 @@ export default function Onboarding() {
   const [step, setStep] = useState(0)
 
   const district = districts.find((d) => d.id === districtId)
-  const window = fmtWindow(SAMPLE_CROPS[0].window, lang)
+  // the window that is actually next, not soybean's regardless of month
+  const status = sowingStatus(SAMPLE_CROPS)
+  const window = fmtWindow({ from: status.from, to: status.to }, lang)
 
   const canNext =
     (step === 0 && name.trim().length > 0) ||

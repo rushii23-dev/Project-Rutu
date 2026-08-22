@@ -143,3 +143,29 @@ export function sowingStatus(crops, now = new Date()) {
     days: daysInYear - today + first.start,
   }
 }
+
+/**
+ * Where TODAY sits relative to one crop's own sowing window.
+ *
+ * A crop's window is a fact about the crop, but shown bare it reads as an
+ * instruction — "18 – 30 Jun" on an August screen tells a farmer to sow into a
+ * window that shut seven weeks ago. Every place that prints a window should
+ * print this alongside it.
+ *
+ * Returns { phase: 'open' | 'upcoming' | 'passed', days }
+ *   open     — days remaining in the window
+ *   upcoming — days until it opens, this year
+ *   passed   — days until it opens again next year
+ */
+export function cropWindowStatus(crop, now = new Date()) {
+  const y = now.getFullYear()
+  const today = doy(y, now.getMonth(), now.getDate())
+  const start = doy(y, crop.window.from.m, crop.window.from.d)
+  const end = doy(y, crop.window.to.m, crop.window.to.d)
+
+  if (today >= start && today <= end) return { phase: 'open', days: end - today }
+  if (today < start) return { phase: 'upcoming', days: start - today }
+
+  const yearLen = doy(y, 11, 31)
+  return { phase: 'passed', days: yearLen - today + start }
+}
