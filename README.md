@@ -75,7 +75,7 @@ Mobile-first PWA, Marathi-first, four buttons, one answer per screen.
 | **Evidence** | The 41-year onset chart, supporting shifts, and full data provenance |
 | **`/policy`** | State surface: all 36 districts mapped by onset shift and significance, plus the federation model |
 | **Ask** | Voice or typed questions in any of the three languages, answered from verified data |
-| **Profile** | Edit details in place, switch district, real offline/cache state, dated provenance for every source |
+| **Profile** | Edit details in place, switch district, the cropping year with today marked, and today's best-paying markets |
 
 ### Details that matter
 

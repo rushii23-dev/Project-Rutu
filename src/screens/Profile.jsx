@@ -1,29 +1,30 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useStore } from '../lib/store.jsx'
-import { useOffline } from '../lib/useOffline.js'
 import { fmtDate, fmtDoy, getSeasons, LANGS } from '../i18n/index.js'
 import { seasonForDate, sowingStatus } from '../lib/season.js'
 import { SAMPLE_CROPS } from '../data/crops.js'
-import { priceSource, priceCoverage } from '../lib/prices.js'
-import ndvi from '../data/ndvi.json'
 import { Card, EyebrowLabel } from '../components/ui.jsx'
+import FarmingYear from '../components/FarmingYear.jsx'
+import BestPrices from '../components/BestPrices.jsx'
 
 const VERSION = '0.3.0'
 
 /**
  * Profile as a control panel, not a settings list.
  *
- * Everything here is either editable in place or a real, verifiable fact:
- * the district's own onset finding, actual cache state from the service worker,
- * and the dated provenance of every dataset the app uses. The previous version
- * had four tiles that did nothing when tapped; they are gone.
+ * Everything here is either editable in place or a real, verifiable fact: the
+ * district's own onset finding, the cropping year with today marked on it, and
+ * today's best-paying markets from live Agmarknet data.
+ *
+ * Nothing on this screen is decorative. An earlier version had four tiles that
+ * did nothing when tapped, and later two cards that only restated provenance —
+ * a farmer opening Profile should find something worth acting on.
  */
 export default function Profile() {
   const { t, lang, name, village, acres, district, districtId, districts, districtName, set, reset } =
     useStore()
   const nav = useNavigate()
-  const off = useOffline()
 
   const [editing, setEditing] = useState(null) // 'name' | 'village' | null
   const [draft, setDraft] = useState('')
@@ -156,52 +157,9 @@ export default function Profile() {
         </button>
       </Card>
 
-      {/* ---- offline: read from the actual cache -------------------------- */}
-      <Card className="mt-3 px-5 py-5">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <EyebrowLabel>{t('offlineTitle')}</EyebrowLabel>
-            <p className="mt-1.5 text-[15px] leading-snug text-ink-2">
-              {off.ready ? t('offlineReady') : t('offlineNotReady')}
-            </p>
-            {off.ready ? (
-              <p className="num mt-1 text-[11px] text-faint">{t('cached', { n: off.files })}</p>
-            ) : null}
-          </div>
-          <span
-            className={`mt-1 h-2.5 w-2.5 flex-none rounded-full ${
-              off.ready ? 'bg-grow' : 'bg-warn'
-            }`}
-          />
-        </div>
+      <FarmingYear />
 
-        {off.installed ? (
-          <div className="mt-3 rounded-2xl bg-grow-l px-4 py-2.5 text-[14px] font-medium text-grow-d">
-            ✓ {t('installed')}
-          </div>
-        ) : off.canInstall ? (
-          <button
-            onClick={off.install}
-            className="mt-3 h-12 w-full rounded-3xl bg-ink text-[16px] font-semibold text-white"
-          >
-            {t('installApp')}
-          </button>
-        ) : null}
-      </Card>
-
-      {/* ---- provenance, dated ------------------------------------------- */}
-      <Card className="mt-3 px-5 py-5">
-        <EyebrowLabel>{t('sourcesTitle')}</EyebrowLabel>
-        <div className="mt-2.5 flex flex-col">
-          <Source label={t('srcRain')} note={`${onset.yearFrom}–${onset.yearTo}`} />
-          <Source label={t('srcForecast')} note={off.online ? 'live' : '—'} />
-          <Source
-            label={t('srcPrice')}
-            note={priceCoverage.includes(districtId) ? priceSource.fetched : '—'}
-          />
-          <Source label={t('srcSat')} note={ndvi.hero.peak.date} last />
-        </div>
-      </Card>
+      <BestPrices />
 
       {/* ---- privacy: true, and worth saying ------------------------------ */}
       <Card className="mt-3 px-5 py-5">
@@ -307,13 +265,3 @@ function EditRow({ value, onChange, onSave, onCancel, save }) {
   )
 }
 
-function Source({ label, note, last }) {
-  return (
-    <div
-      className={`flex items-center justify-between py-2.5 ${last ? '' : 'border-b border-hair'}`}
-    >
-      <span className="text-[15px] text-ink-2">{label}</span>
-      <span className="num text-[12px] text-faint">{note}</span>
-    </div>
-  )
-}
