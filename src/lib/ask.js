@@ -216,16 +216,12 @@ export function ask(utterance, ctx) {
     }
 
     case 'rain': {
+      // sowingAdvice already states the millimetres — do not restate them here
       const a = sowingAdvice(week, lang)
-      const mm = week.slice(0, 5).reduce((s, d) => s + d.mm, 0)
       return {
         intent: best.id, crop,
         text: a.title,
-        detail: {
-          mr: `पुढील 5 दिवसांत ${Math.round(mm)} मिमी अपेक्षित. ${a.body}`,
-          hi: `अगले 5 दिनों में ${Math.round(mm)} मिमी अनुमानित. ${a.body}`,
-          en: `${Math.round(mm)} mm expected over the next 5 days. ${a.body}`,
-        }[lang],
+        detail: a.body,
         source: 'Open-Meteo (live)',
       }
     }

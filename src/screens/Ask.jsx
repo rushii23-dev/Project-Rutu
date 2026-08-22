@@ -11,29 +11,53 @@ import { Card, RoundIconButton } from '../components/ui.jsx'
  * Speech recognition and synthesis both come from the browser's built-in Web
  * Speech API — free, no key, no account, and no audio leaves the device.
  *
- * Recognition is not available in every browser (notably Firefox and some
- * Android WebViews). When it is missing we say so and fall back to typing,
- * rather than showing a mic button that silently does nothing.
+ * Two things make this fail in the field, and both are reported explicitly
+ * rather than leaving a mic button that does nothing:
+ *
+ *   1. INSECURE ORIGIN. The API needs a secure context. localhost counts, but
+ *      a phone opening http://192.168.x.x over the LAN does NOT, and Chrome
+ *      refuses with "not-allowed" — indistinguishable from a denied permission
+ *      unless you check. Use HTTPS or the deployed URL to test on a phone.
+ *   2. NO RECOGNITION ENGINE. Firefox has none; some Android WebViews have none.
  */
 export default function Ask() {
-  const store = useStore()
-  const { t, lang, district, districtName, acres } = store
-  const { week } = useForecast(district)
+  const { t, lang, district, districtName, acres } = useStore()
+  const forecast = useForecast(district)
   const nav = useNavigate()
 
-  const [supported, setSupported] = useState(true)
+  const [support, setSupport] = useState({ ok: true, reason: null })
   const [listening, setListening] = useState(false)
   const [heard, setHeard] = useState('')
   const [answer, setAnswer] = useState(null)
   const [error, setError] = useState(null)
   const recRef = useRef(null)
 
+  // The recognition object is created once per language, but its callbacks must
+  // read the CURRENT forecast. Without this ref they captured the first render's
+  // sample week and answered rain questions from stale data.
+  const liveRef = useRef({ lang, district, districtName, acres, week: forecast.week })
+  liveRef.current = { lang, district, districtName, acres, week: forecast.week }
+
+  function respond(text) {
+    const a = ask(text, liveRef.current)
+    setAnswer(a)
+    speak(a)
+  }
+  const respondRef = useRef(respond)
+  respondRef.current = respond
+
   useEffect(() => {
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition
-    if (!SR) {
-      setSupported(false)
+    if (!window.isSecureContext) {
+      setSupport({ ok: false, reason: 'insecure' })
       return
     }
+    if (!SR) {
+      setSupport({ ok: false, reason: 'unsupported' })
+      return
+    }
+    setSupport({ ok: true, reason: null })
+
     const rec = new SR()
     rec.lang = SPEECH_LOCALE[lang]
     rec.interimResults = true
@@ -45,15 +69,11 @@ export default function Ask() {
         .map((r) => r[0].transcript)
         .join(' ')
       setHeard(txt)
-      if (e.results[e.results.length - 1].isFinal) respond(txt)
+      if (e.results[e.results.length - 1].isFinal) respondRef.current(txt)
     }
     rec.onerror = (e) => {
       setListening(false)
-      setError(
-        e.error === 'not-allowed'
-          ? { mr: 'माइकची परवानगी द्या.', hi: 'माइक की अनुमति दें.', en: 'Allow microphone access.' }[lang]
-          : { mr: 'ऐकू आलं नाही. पुन्हा बोला.', hi: 'सुनाई नहीं दिया. फिर बोलें.', en: 'Did not catch that. Try again.' }[lang]
-      )
+      setError(errorText(e.error, lang))
     }
     rec.onend = () => setListening(false)
 
@@ -64,14 +84,9 @@ export default function Ask() {
       } catch {
         /* already stopped */
       }
+      recRef.current = null
     }
   }, [lang])
-
-  function respond(text) {
-    const a = ask(text, { lang, district, districtName, acres, week })
-    setAnswer(a)
-    speak(a)
-  }
 
   function speak(a) {
     if (!a || !window.speechSynthesis) return
@@ -79,7 +94,7 @@ export default function Ask() {
       window.speechSynthesis.cancel()
       const u = new SpeechSynthesisUtterance([a.text, a.detail].filter(Boolean).join(' '))
       u.lang = SPEECH_LOCALE[lang]
-      u.rate = 0.95 // a little slower — this is being read aloud in a field
+      u.rate = 0.95 // slower — this is read aloud in a field
       window.speechSynthesis.speak(u)
     } catch {
       /* synthesis unavailable — the answer is still on screen */
@@ -88,19 +103,36 @@ export default function Ask() {
 
   function toggle() {
     setError(null)
+    const rec = recRef.current
+    if (!rec) return
     if (listening) {
-      recRef.current?.stop()
+      try {
+        rec.stop()
+      } catch {
+        setListening(false)
+      }
       return
     }
     setHeard('')
     setAnswer(null)
     try {
-      recRef.current.lang = SPEECH_LOCALE[lang]
-      recRef.current.start()
+      rec.lang = SPEECH_LOCALE[lang]
+      rec.start()
       setListening(true)
-    } catch {
+    } catch (e) {
+      // start() throws InvalidStateError if a previous session is still closing
       setListening(false)
+      setError(errorText('busy', lang))
     }
+  }
+
+  function submitTyped(e) {
+    e.preventDefault()
+    const v = new FormData(e.currentTarget).get('q')?.toString().trim()
+    if (!v) return
+    setHeard(v)
+    respondRef.current(v)
+    e.currentTarget.reset()
   }
 
   return (
@@ -112,7 +144,6 @@ export default function Ask() {
       <h1 className="display mt-6 text-[34px] leading-tight text-ink">{t('askTitle')}</h1>
       <p className="mt-1 text-base text-muted">{t('askSub')}</p>
 
-      {/* what we heard */}
       {heard ? (
         <Card className="mt-5 px-5 py-4">
           <div className="text-[11px] font-semibold uppercase tracking-wide text-faint">
@@ -122,7 +153,6 @@ export default function Ask() {
         </Card>
       ) : null}
 
-      {/* the answer */}
       {answer ? (
         <div className="mt-3 rounded-[28px] bg-ink px-6 py-5">
           <div className="display text-[26px] leading-snug text-white">{answer.text}</div>
@@ -135,27 +165,27 @@ export default function Ask() {
             ) : (
               <span />
             )}
-            <button
-              onClick={() => speak(answer)}
-              className="text-[13px] font-semibold text-grow-l"
-            >
+            <button onClick={() => speak(answer)} className="text-[13px] font-semibold text-grow-l">
               {t('askRepeat')}
             </button>
           </div>
         </div>
       ) : null}
 
-      {error ? <p className="mt-3 text-[15px] font-medium text-warn-m">{error}</p> : null}
+      {error ? (
+        <p className="mt-3 rounded-2xl bg-warn-l px-4 py-3 text-[15px] font-medium leading-relaxed text-warn-d">
+          {error}
+        </p>
+      ) : null}
 
-      {/* mic */}
       <div className="mt-7 flex flex-col items-center">
-        {supported ? (
+        {support.ok ? (
           <>
             <button
               onClick={toggle}
               aria-label={t('askTap')}
               className={`flex h-[104px] w-[104px] items-center justify-center rounded-full transition ${
-                listening ? 'bg-warn ritu-pulse' : 'bg-grow'
+                listening ? 'ritu-pulse bg-warn' : 'bg-grow'
               }`}
             >
               <svg
@@ -177,22 +207,14 @@ export default function Ask() {
             </div>
           </>
         ) : (
-          <p className="text-center text-[15px] leading-relaxed text-warn-m">{t('askNoMic')}</p>
+          <p className="rounded-2xl bg-warn-l px-4 py-3 text-center text-[14px] leading-relaxed text-warn-d">
+            {support.reason === 'insecure' ? t('askInsecure') : t('askNoMic')}
+          </p>
         )}
       </div>
 
-      {/* typed fallback — always available, not just when the mic is missing */}
-      <form
-        className="mt-6 flex gap-2"
-        onSubmit={(e) => {
-          e.preventDefault()
-          const v = new FormData(e.currentTarget).get('q')?.toString().trim()
-          if (v) {
-            setHeard(v)
-            respond(v)
-          }
-        }}
-      >
+      {/* typing always works, whatever the browser does with the microphone */}
+      <form className="mt-6 flex gap-2" onSubmit={submitTyped}>
         <input
           name="q"
           placeholder={t('askType')}
@@ -203,14 +225,13 @@ export default function Ask() {
         </button>
       </form>
 
-      {/* example prompts so a first-time user knows what to say */}
       <div className="sc mt-4 flex gap-2 overflow-x-auto">
         {EXAMPLES[lang].map((ex) => (
           <button
             key={ex}
             onClick={() => {
               setHeard(ex)
-              respond(ex)
+              respondRef.current(ex)
             }}
             className="flex-none rounded-[20px] bg-card px-4 py-2.5 text-[14px] text-ink-2"
           >
@@ -222,4 +243,41 @@ export default function Ask() {
       <p className="mt-5 text-[11px] leading-relaxed text-faint">{t('askNote')}</p>
     </div>
   )
+}
+
+/** Speech errors are cryptic; say what the farmer should actually do. */
+function errorText(code, lang) {
+  const M = {
+    'not-allowed': {
+      mr: 'माइक बंद आहे. ब्राउझरमध्ये माइकची परवानगी द्या. (फोनवर http:// वापरत असाल तर आवाज चालणार नाही — https:// लागतं.)',
+      hi: 'माइक बंद है. ब्राउज़र में माइक की अनुमति दें. (फ़ोन पर http:// है तो आवाज़ नहीं चलेगी — https:// चाहिए.)',
+      en: 'Microphone blocked. Allow mic access in the browser. (On a phone over http:// speech will not work — it needs https://.)',
+    },
+    'service-not-allowed': {
+      mr: 'या ब्राउझरमध्ये आवाज सेवा बंद आहे.',
+      hi: 'इस ब्राउज़र में आवाज़ सेवा बंद है.',
+      en: 'The speech service is disabled in this browser.',
+    },
+    'no-speech': {
+      mr: 'काही ऐकू आलं नाही. जरा जवळून बोला.',
+      hi: 'कुछ सुनाई नहीं दिया. थोड़ा पास से बोलें.',
+      en: 'Nothing was heard. Speak a little closer.',
+    },
+    network: {
+      mr: 'आवाज ओळखण्यासाठी इंटरनेट लागतं. खाली लिहून विचारा.',
+      hi: 'आवाज़ पहचानने के लिए इंटरनेट चाहिए. नीचे लिखकर पूछें.',
+      en: 'Speech recognition needs internet. Type your question instead.',
+    },
+    busy: {
+      mr: 'जरा थांबा आणि पुन्हा दाबा.',
+      hi: 'थोड़ा रुकें और फिर दबाएँ.',
+      en: 'Wait a moment and tap again.',
+    },
+  }
+  const fallback = {
+    mr: 'ऐकू आलं नाही. पुन्हा बोला किंवा खाली लिहा.',
+    hi: 'सुनाई नहीं दिया. फिर बोलें या नीचे लिखें.',
+    en: 'Did not catch that. Try again or type below.',
+  }
+  return (M[code] || fallback)[lang]
 }
