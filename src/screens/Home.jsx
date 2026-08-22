@@ -62,6 +62,23 @@ export default function Home() {
 
       <AlertCard tone={advice.tone} title={advice.title} body={advice.body} />
 
+      {/* voice entry — a farmer with a question should not have to navigate */}
+      <button
+        onClick={() => nav('/ask')}
+        className="mt-3.5 flex w-full items-center gap-4 rounded-[26px] bg-grow px-5 py-4 text-left"
+      >
+        <span className="flex h-11 w-11 flex-none items-center justify-center rounded-full bg-white/20">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="9" y="2" width="6" height="12" rx="3" />
+            <path d="M5 11a7 7 0 0 0 14 0M12 18v4" />
+          </svg>
+        </span>
+        <span>
+          <span className="block text-[17px] font-semibold text-white">{t('askTitle')}</span>
+          <span className="block text-[14px] text-white/75">{t('askSub')}</span>
+        </span>
+      </button>
+
       {/* the hero: the corrected sowing date */}
       <Card className="mt-3.5 px-6 pb-5 pt-6">
         <EyebrowLabel>{heroTitle}</EyebrowLabel>

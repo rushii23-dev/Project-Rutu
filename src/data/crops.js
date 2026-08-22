@@ -18,6 +18,9 @@ export const SEASON_KEYS = ['kharif', 'rabi', 'summer']
 export const SAMPLE_CROPS = [
   {
     id: 'soy',
+    // oblique/possessive forms — Devanagari changes the stem, not just
+    // the ending, so these are matched explicitly. See lib/ask.js.
+    aliases: ['सोयाबीन', 'सोयाबिन', 'soyabean'],
     // soil effect: nitrogen balance and organic-matter contribution.
     // Crop-type agronomy, not a measurement -- see rotation.js.
     soil: { legume: true, n: +2, om: +1, note: 'fix' },
@@ -60,6 +63,9 @@ export const SAMPLE_CROPS = [
   },
   {
     id: 'maize',
+    // oblique/possessive forms — Devanagari changes the stem, not just
+    // the ending, so these are matched explicitly. See lib/ask.js.
+    aliases: ['मक्या', 'मक्क', 'मकय', 'makka'],
     // soil effect: nitrogen balance and organic-matter contribution.
     // Crop-type agronomy, not a measurement -- see rotation.js.
     soil: { legume: false, n: -1, om: +2, note: 'residue' },
@@ -102,6 +108,9 @@ export const SAMPLE_CROPS = [
   },
   {
     id: 'bajra',
+    // oblique/possessive forms — Devanagari changes the stem, not just
+    // the ending, so these are matched explicitly. See lib/ask.js.
+    aliases: ['बाजरी', 'बाजरा', 'बाजऱ्या'],
     // soil effect: nitrogen balance and organic-matter contribution.
     // Crop-type agronomy, not a measurement -- see rotation.js.
     soil: { legume: false, n: -1, om: +1, note: 'residue' },
@@ -144,6 +153,9 @@ export const SAMPLE_CROPS = [
   },
   {
     id: 'cotton',
+    // oblique/possessive forms — Devanagari changes the stem, not just
+    // the ending, so these are matched explicitly. See lib/ask.js.
+    aliases: ['कापस', 'कापसा', 'कपास', 'कपास'],
     // soil effect: nitrogen balance and organic-matter contribution.
     // Crop-type agronomy, not a measurement -- see rotation.js.
     soil: { legume: false, n: -2, om: -1, note: 'heavy' },
@@ -186,6 +198,9 @@ export const SAMPLE_CROPS = [
   },
   {
     id: 'wheat',
+    // oblique/possessive forms — Devanagari changes the stem, not just
+    // the ending, so these are matched explicitly. See lib/ask.js.
+    aliases: ['गव्ह', 'गव्हा', 'गेहूं', 'गेहू', 'गेहु'],
     // soil effect: nitrogen balance and organic-matter contribution.
     // Crop-type agronomy, not a measurement -- see rotation.js.
     soil: { legume: false, n: -1, om: +1, note: 'residue' },
@@ -228,6 +243,9 @@ export const SAMPLE_CROPS = [
   },
   {
     id: 'gram',
+    // oblique/possessive forms — Devanagari changes the stem, not just
+    // the ending, so these are matched explicitly. See lib/ask.js.
+    aliases: ['हरभर', 'हरभऱ्या', 'चन्या', 'चने'],
     // soil effect: nitrogen balance and organic-matter contribution.
     // Crop-type agronomy, not a measurement -- see rotation.js.
     soil: { legume: true, n: +2, om: +1, note: 'fix' },
@@ -270,6 +288,9 @@ export const SAMPLE_CROPS = [
   },
   {
     id: 'onion',
+    // oblique/possessive forms — Devanagari changes the stem, not just
+    // the ending, so these are matched explicitly. See lib/ask.js.
+    aliases: ['कांद', 'कांद्या', 'प्याज', 'प्याज़', 'पयाज'],
     // soil effect: nitrogen balance and organic-matter contribution.
     // Crop-type agronomy, not a measurement -- see rotation.js.
     soil: { legume: false, n: -2, om: -1, note: 'heavy' },
@@ -312,6 +333,9 @@ export const SAMPLE_CROPS = [
   },
   {
     id: 'ground',
+    // oblique/possessive forms — Devanagari changes the stem, not just
+    // the ending, so these are matched explicitly. See lib/ask.js.
+    aliases: ['भुईमुग', 'भुईमुगा', 'भुइमूग', 'मूंगफली', 'मुंगफली'],
     // soil effect: nitrogen balance and organic-matter contribution.
     // Crop-type agronomy, not a measurement -- see rotation.js.
     soil: { legume: true, n: +2, om: +1, note: 'fix' },
@@ -354,6 +378,9 @@ export const SAMPLE_CROPS = [
   },
   {
     id: 'moong',
+    // oblique/possessive forms — Devanagari changes the stem, not just
+    // the ending, so these are matched explicitly. See lib/ask.js.
+    aliases: ['मुगा', 'मुग', 'मूंग', 'मूग'],
     // soil effect: nitrogen balance and organic-matter contribution.
     // Crop-type agronomy, not a measurement -- see rotation.js.
     soil: { legume: true, n: +1, om: +1, note: 'fix' },

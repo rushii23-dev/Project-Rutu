@@ -10,6 +10,7 @@ import CropDetail from './screens/CropDetail.jsx'
 import Weather from './screens/Weather.jsx'
 import Evidence from './screens/Evidence.jsx'
 import Profile from './screens/Profile.jsx'
+import Ask from './screens/Ask.jsx'
 import Policy from './screens/Policy.jsx'
 
 /** Screens behind onboarding bounce to welcome until the profile exists. */
@@ -30,6 +31,7 @@ function FarmerApp() {
         <Route path="/crops/:id" element={<Gate><CropDetail /></Gate>} />
         <Route path="/weather" element={<Gate><Weather /></Gate>} />
         <Route path="/evidence" element={<Gate><Evidence /></Gate>} />
+        <Route path="/ask" element={<Gate><Ask /></Gate>} />
         <Route path="/profile" element={<Gate><Profile /></Gate>} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

@@ -9,7 +9,6 @@ Prices are Agmarknet modal prices in rupees per quintal (100 kg).
 Usage:  python fetch_prices.py
 """
 import json, os, sys, time, urllib.parse, urllib.request, datetime, statistics, collections
-from concurrent.futures import ThreadPoolExecutor
 
 ROOT = r"D:/Project RITU"
 OUT = os.path.join(ROOT, "src/data/prices.json")
@@ -143,6 +142,16 @@ for r in rows:
 state = {c: {"modal": round(statistics.median(sorted(v))), "markets": len(v)}
          for c, v in by_crop.items()}
 
+# Guard: data.gov.in signals throttling with HTTP 200 and an empty result, so a
+# blocked run looks like "no prices exist anywhere". Refuse to overwrite good
+# data with that.
+if len(rows) < 10:
+    log("")
+    log(f"ABORTED: only {len(rows)} rows returned across {len(names)} districts.")
+    log("  That is the signature of a rate-limited key, not an empty market day.")
+    log(f"  {OUT} left untouched. Try again later.")
+    raise SystemExit(1)
+
 payload = {
     "source": {
         "name": "Agmarknet daily mandi prices via data.gov.in",
@@ -151,6 +160,7 @@ payload = {
         "unit": "INR per quintal (100 kg)",
         "fetched": datetime.datetime.now().strftime("%Y-%m-%d"),
     },
+    "coverage": sorted(per_district.keys()),
     "state": state,
     "districts": dict(per_district),
 }

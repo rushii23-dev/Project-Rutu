@@ -74,3 +74,12 @@ body {
   .ritu-rain { animation: none; }
   .fade { animation: none; }
 }
+
+/* Listening pulse on the mic. Motion is decorative, so it stops under
+   prefers-reduced-motion along with everything else. */
+@keyframes ritu-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(193, 83, 27, .45); }
+  50%      { box-shadow: 0 0 0 18px rgba(193, 83, 27, 0); }
+}
+.ritu-pulse { animation: ritu-pulse 1.6s ease-out infinite; }
+@media (prefers-reduced-motion: reduce) { .ritu-pulse { animation: none; } }

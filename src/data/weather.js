@@ -115,9 +115,9 @@ export function sowingAdvice(week, lang) {
     return {
       tone: 'warn',
       title: {
-        mr: 'पुढील 5 दिवस पाऊस नाही',
-        hi: 'अगले 5 दिन बारिश नहीं',
-        en: 'No rain for the next 5 days',
+        mr: 'पुढील 5 दिवस पेरणीयोग्य पाऊस नाही',
+        hi: 'अगले 5 दिन बुवाई लायक बारिश नहीं',
+        en: 'No sowing rain for the next 5 days',
       }[lang],
       body: {
         mr: 'पेरणी थांबवा. कोरड्या जमिनीत बी टाकल्यास उगवण कमी होते.',
