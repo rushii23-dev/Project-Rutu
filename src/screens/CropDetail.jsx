@@ -5,6 +5,7 @@ import { cropById } from '../data/crops.js'
 import { priceFor, priceSource } from '../lib/prices.js'
 import { Card, Chip, EyebrowLabel, RoundIconButton, SampleBadge } from '../components/ui.jsx'
 import Rotation from '../components/Rotation.jsx'
+import Resilience from '../components/Resilience.jsx'
 import { cropWindowStatus } from '../lib/season.js'
 
 export default function CropDetail() {
@@ -162,6 +163,9 @@ export default function CropDetail() {
         <div className="mt-2.5 text-[15px] text-hint">{c.windowNote[lang]}</div>
       </div>
 
+      {/* resilience answers "should I plant this at all", rotation answers
+          "what comes after it" — so resilience reads first */}
+      <Resilience crop={c} />
       <Rotation crop={c} />
     </div>
   )

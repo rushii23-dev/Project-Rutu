@@ -96,7 +96,8 @@ This is where most agricultural advisory tools fail, so it is stated in detail.
 Stated plainly, because a public good that hides its gaps is not one:
 
 - **Per-acre yield and cost** are placeholders. Income figures are badged as samples until sourced from CACP tables.
-- **Crop water requirements and sowing windows** are agronomically plausible but not yet cited to a state package of practices.
+- **Crop water requirements and sowing windows** are agronomically plausible but not yet cited to a state package of practices. The climate-resilience score is built on those same rules of thumb, so it inherits the caveat; it is scored only where the monsoon record can speak to the crop, and summer crops grown on well water return no score at all rather than a misleading one.
 - **Prices cover all 36 districts**, fetched state-wide each run. Districts absent from a day's data had no arrivals, which the interface says; a crop with no local arrivals falls back to the state median, labelled as such.
 - **Soil Health Card N-P-K is not integrated.** Until it is, soil output stays relative.
+- **Only the India node is computed.** The federation roster on `/policy` names the onset question each other nation's archive would be asked, and marks all four as not computed. No figure is shown for any of them.
 - **The disease diagnostic is not built.** When it is, it will be trained on PlantVillage, which is not field-collected Indian data — a limitation that will be stated in the interface, not just the docs.

@@ -212,9 +212,10 @@ Assessed against all nine indicators of the DPG Standard in **[DPG.md](DPG.md)**
 
 ## Roadmap
 
-- [ ] Climate-resilience score per crop, computed from each district's own 41-year record
+- [x] Climate-resilience score per crop, computed from each district's own 41-year record
 - [ ] Leaf-photo disease diagnosis (PlantVillage transfer learning)
 - [x] `/policy` — district map of onset shift and significance across Maharashtra
+- [x] Federation roster showing what a second national node would require
 - [x] Regenerative three-season rotation with relative soil-nitrogen balance
 - [ ] Soil Health Card N-P-K integration
 - [ ] Source per-acre yield and cost from CACP tables, retiring the sample badges

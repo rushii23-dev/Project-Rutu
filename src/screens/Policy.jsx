@@ -16,6 +16,49 @@ import { fmtDoy } from '../i18n/index.js'
 const W = 760
 const H = 560
 
+/**
+ * The federation roster.
+ *
+ * Only India is computed. The other four carry NO numbers on purpose — naming
+ * the question a country's archive would be asked is honest; inventing its
+ * answer is not. `signal` is the locally meaningful onset each nation already
+ * tracks, not something RITU has measured.
+ *
+ * TODO: a second live node needs that country's onset rule agreed first.
+ */
+const NODES = [
+  {
+    country: 'India',
+    live: true,
+    signal: 'Monsoon onset, 36 districts, 1985–2025',
+    crop: 'Soybean, cotton, bajra',
+  },
+  {
+    country: 'Brazil',
+    live: false,
+    signal: 'Rainy-season onset that opens the planting window',
+    crop: 'Soybean, maize',
+  },
+  {
+    country: 'Russia',
+    live: false,
+    signal: 'Thermal spring onset and last-frost date',
+    crop: 'Spring wheat, barley',
+  },
+  {
+    country: 'China',
+    live: false,
+    signal: 'East Asian monsoon onset',
+    crop: 'Rice, winter wheat',
+  },
+  {
+    country: 'South Africa',
+    live: false,
+    signal: 'Summer-rainfall onset on the Highveld',
+    crop: 'Maize, sorghum',
+  },
+]
+
 export default function Policy() {
   const [hover, setHover] = useState(null)
   const districts = districtData.districts
@@ -189,9 +232,10 @@ export default function Policy() {
           <div className="rounded-[28px] bg-card p-7">
             <h2 className="display text-[26px] text-ink">Models cross borders. Records do not.</h2>
             <p className="mt-3 text-[16px] leading-relaxed text-muted">
-              States will not share raw farmer data — it is politically and legally
-              fraught, and they are right to refuse. So RITU shares the{' '}
-              <b className="text-ink">method</b>, not the records.
+              States will not share raw farmer data, and nations share it less readily
+              still — it is politically and legally fraught, and they are right to
+              refuse. So RITU shares the <b className="text-ink">method</b>, not the
+              records. That is what makes a second node possible at all.
             </p>
 
             <div className="mt-5 grid grid-cols-2 gap-3">
@@ -203,7 +247,15 @@ export default function Policy() {
                   <li>Onset detection rule</li>
                   <li>Trend + significance method</li>
                   <li>Crop and rotation schema</li>
-                  <li>Trained disease weights</li>
+                  <li>Climate-resilience scoring rules</li>
+                  {/* the disease model is not built. Say so here rather than let
+                      the list imply it ships — README and DPG.md both disclose it. */}
+                  <li className="opacity-60">
+                    Trained disease weights{' '}
+                    <span className="rounded bg-warn-l px-1.5 py-0.5 text-[11px] font-semibold text-warn-m">
+                      not built yet
+                    </span>
+                  </li>
                 </ul>
               </div>
               <div className="rounded-2xl bg-warn-l p-4">
@@ -220,8 +272,10 @@ export default function Policy() {
             </div>
 
             <p className="mt-4 text-[15px] leading-relaxed text-muted">
-              A disease pattern learned in Maharashtra improves detection in Karnataka
-              without a single farmer record crossing the border.
+              The four rules above already work this way today. When the disease model
+              lands, it joins them on the same terms — a pattern learned in Maharashtra
+              improving detection in Karnataka without a single farmer record crossing
+              the border.
             </p>
           </div>
 
@@ -250,6 +304,63 @@ export default function Policy() {
               <span className="num">scripts/</span> — nothing is hand-written.
             </p>
           </div>
+        </section>
+
+        {/* ---- cross-border / BRICS ---------------------------------------- */}
+        <section className="mt-6 rounded-[28px] bg-card p-7">
+          <h2 className="display text-[26px] text-ink">
+            Maharashtra is the first node, not the only one.
+          </h2>
+          <p className="mt-3 max-w-[80ch] text-[16px] leading-relaxed text-muted">
+            Every farming country has the same problem in a different accent: a sowing
+            calendar inherited from a climate that has since moved. The calculation on
+            this page needs only two things a nation already has — a multi-decade daily
+            rainfall archive and a crop calendar. Nothing about it is specific to India.
+          </p>
+
+          <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+            {NODES.map((n) => (
+              <div
+                key={n.country}
+                className={`rounded-2xl p-4 ${n.live ? 'bg-grow-l' : 'bg-chip'}`}
+              >
+                <div className="flex items-baseline justify-between">
+                  <span
+                    className={`text-[15px] font-semibold ${n.live ? 'text-grow-d' : 'text-ink-2'}`}
+                  >
+                    {n.country}
+                  </span>
+                  <span
+                    className={`num rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${
+                      n.live ? 'bg-grow text-white' : 'bg-warn-l text-warn-m'
+                    }`}
+                  >
+                    {n.live ? 'live' : 'not computed'}
+                  </span>
+                </div>
+                <div
+                  className={`mt-2 text-[13px] leading-relaxed ${n.live ? 'text-grow-d' : 'text-muted'}`}
+                >
+                  {n.signal}
+                </div>
+                <div className="mt-2 text-[12px] leading-relaxed text-faint">{n.crop}</div>
+              </div>
+            ))}
+          </div>
+
+          <p className="mt-5 max-w-[80ch] text-[15px] leading-relaxed text-muted">
+            Only the India node is computed. The other four are named to show what the
+            same rule would be asked to find, not to imply we have found it — each would
+            need its own onset definition agreed with that country&rsquo;s meteorological
+            agency, which is the point of a shared network rather than an exported app.
+          </p>
+          <p className="mt-3 max-w-[80ch] text-[14px] leading-relaxed text-faint">
+            India uses IMD&rsquo;s national gridded archive because it is the finest
+            available here. Where a nation has no comparable national product, ECMWF
+            ERA5 covers the whole globe from 1940 at no cost — the same free
+            infrastructure RITU already calls for its forecasts. The barrier to a second
+            node is agreement on the onset rule, not data access.
+          </p>
         </section>
 
         <footer className="mt-8 border-t border-track pt-5 text-[13px] leading-relaxed text-faint">
