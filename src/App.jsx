@@ -2,7 +2,7 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import PhoneFrame from './components/PhoneFrame.jsx'
 import { useStore } from './lib/store.jsx'
 
-import Welcome from './screens/Welcome.jsx'
+import Splash from './screens/Splash.jsx'
 import Onboarding from './screens/Onboarding.jsx'
 import Home from './screens/Home.jsx'
 import Crops from './screens/Crops.jsx'
@@ -24,7 +24,7 @@ function FarmerApp() {
   return (
     <PhoneFrame>
       <Routes>
-        <Route path="/" element={<Welcome />} />
+        <Route path="/" element={<Splash />} />
         <Route path="/onboarding" element={<Onboarding />} />
         <Route path="/home" element={<Gate><Home /></Gate>} />
         <Route path="/crops" element={<Gate><Crops /></Gate>} />

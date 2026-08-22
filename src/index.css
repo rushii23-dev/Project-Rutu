@@ -83,3 +83,38 @@ body {
 }
 .ritu-pulse { animation: ritu-pulse 1.6s ease-out infinite; }
 @media (prefers-reduced-motion: reduce) { .ritu-pulse { animation: none; } }
+
+/* ---- Splash ------------------------------------------------------------
+   Slow, restrained entrance. The wordmark settles rather than bounces —
+   this is the first thing a farmer sees and it should feel calm, not like
+   a game. Every step is skippable and all of it stops under
+   prefers-reduced-motion. */
+
+@keyframes ritu-rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes ritu-settle {
+  from { opacity: 0; transform: scale(1.14); letter-spacing: .12em; }
+  to   { opacity: 1; transform: scale(1); letter-spacing: 0; }
+}
+@keyframes ritu-rule {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+@keyframes ritu-leave {
+  from { opacity: 1; transform: none; }
+  to   { opacity: 0; transform: translateY(-18px); }
+}
+
+.sp-eyebrow { animation: ritu-rise .7s ease-out both; }
+.sp-mark    { animation: ritu-settle 1.5s cubic-bezier(.22,.7,.2,1) .25s both; }
+.sp-rule    { transform-origin: left; animation: ritu-rule .8s cubic-bezier(.22,.7,.2,1) 1.05s both; }
+.sp-quote   { animation: ritu-rise 1s ease-out 1.35s both; }
+.sp-langs   { animation: ritu-rise .8s ease-out 2s both; }
+.sp-out     { animation: ritu-leave .55s ease-in both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .sp-eyebrow, .sp-mark, .sp-rule, .sp-quote, .sp-langs { animation: none; opacity: 1; transform: none; letter-spacing: 0; }
+  .sp-out { animation: none; opacity: 0; }
+}

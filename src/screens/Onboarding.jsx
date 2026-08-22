@@ -28,7 +28,7 @@ export default function Onboarding() {
       nav('/home')
     } else setStep(step + 1)
   }
-  const back = () => (step === 0 ? nav('/') : setStep(step - 1))
+  const back = () => (step === 0 ? nav('/', { replace: true }) : setStep(step - 1))
 
   return (
     <div className="flex min-h-[760px] flex-col px-6 pb-10 pt-3.5">

@@ -5,7 +5,9 @@ import districtData from '../data/districts.json'
 const KEY = 'ritu.v1'
 
 const DEFAULTS = {
-  lang: 'mr',
+  // English on first run. A farmer switches to Marathi or Hindi from Profile;
+  // the interface is fully translated either way.
+  lang: 'en',
   onboarded: false,
   name: '',
   village: '',

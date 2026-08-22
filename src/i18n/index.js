@@ -158,6 +158,8 @@ const STRINGS = {
     nav_weather: 'हवामान',
     nav_profile: 'प्रोफाइल',
 
+    splashQuote: 'ऋतु म्हणजे हंगाम.\nतो बदलला आहे.',
+    splashSkip: 'वगळा',
     askTitle: 'विचारा',
     askSub: 'तुमच्या भाषेत बोला — पेरणी, भाव, पाऊस.',
     askHeard: 'तुम्ही म्हणालात',
@@ -289,6 +291,8 @@ const STRINGS = {
     nav_weather: 'मौसम',
     nav_profile: 'प्रोफ़ाइल',
 
+    splashQuote: 'ऋतु यानी मौसम.\nवह बदल चुका है.',
+    splashSkip: 'छोड़ें',
     askTitle: 'पूछें',
     askSub: 'अपनी भाषा में बोलें — बुवाई, भाव, बारिश.',
     askHeard: 'आपने कहा',
@@ -420,6 +424,8 @@ const STRINGS = {
     nav_weather: 'Weather',
     nav_profile: 'Profile',
 
+    splashQuote: 'Ritu means season.\nThe season has changed.',
+    splashSkip: 'Skip',
     askTitle: 'Ask',
     askSub: 'Speak in your language — sowing, prices, rain.',
     askHeard: 'You said',
