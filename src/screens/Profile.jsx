@@ -7,6 +7,7 @@ import { SAMPLE_CROPS } from '../data/crops.js'
 import { Card, EyebrowLabel } from '../components/ui.jsx'
 import FarmingYear from '../components/FarmingYear.jsx'
 import BestPrices from '../components/BestPrices.jsx'
+import AcreInput from '../components/AcreInput.jsx'
 
 const VERSION = '0.3.0'
 
@@ -101,27 +102,11 @@ export default function Profile() {
             </select>
           </div>
 
-          {/* acreage scales every income figure — a stepper, not a text field */}
-          <div className="flex items-center justify-between border-t border-hair py-3">
-            <span className="text-base text-muted">{t('land')}</span>
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => set({ acres: Math.max(1, acres - 1) })}
-                aria-label="less"
-                className="num h-9 w-9 rounded-full bg-chip text-[20px] font-semibold text-ink"
-              >
-                −
-              </button>
-              <span className="num w-16 text-center text-[17px] font-semibold text-ink">
-                {acres} {t('acre')}
-              </span>
-              <button
-                onClick={() => set({ acres: Math.min(20, acres + 1) })}
-                aria-label="more"
-                className="num h-9 w-9 rounded-full bg-grow text-[20px] font-semibold text-white"
-              >
-                +
-              </button>
+          {/* acreage scales every income figure, so it is typeable here too */}
+          <div className="flex items-center justify-between gap-3 border-t border-hair py-3">
+            <span className="flex-none text-base text-muted">{t('land')}</span>
+            <div className="min-w-0 flex-1">
+              <AcreInput value={acres} onChange={(n) => set({ acres: n })} compact />
             </div>
           </div>
         </div>

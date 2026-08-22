@@ -4,6 +4,7 @@ import { useStore } from '../lib/store.jsx'
 import { fmtWindow } from '../i18n/index.js'
 import { sowingStatus } from '../lib/season.js'
 import { Card, PrimaryButton } from '../components/ui.jsx'
+import AcreInput from '../components/AcreInput.jsx'
 import { SAMPLE_CROPS } from '../data/crops.js'
 
 const FIELD =
@@ -98,26 +99,9 @@ export default function Onboarding() {
           <>
             <Title>{t('q_land')}</Title>
             <Sub>{t('q_land_sub')}</Sub>
-            <Card className="mt-8 flex items-center justify-between px-6 py-6">
-              <button
-                onClick={() => set({ acres: Math.max(1, acres - 1) })}
-                aria-label="less"
-                className="num h-[72px] w-[72px] rounded-full bg-chip text-[34px] font-semibold text-ink"
-              >
-                −
-              </button>
-              <div className="text-center">
-                <div className="display text-[56px] leading-none text-ink">{acres}</div>
-                <div className="mt-1 text-[15px] font-medium text-faint">{t('acre')}</div>
-              </div>
-              <button
-                onClick={() => set({ acres: Math.min(20, acres + 1) })}
-                aria-label="more"
-                className="num h-[72px] w-[72px] rounded-full bg-grow text-[32px] font-semibold text-white"
-              >
-                +
-              </button>
-            </Card>
+            <div className="mt-8">
+              <AcreInput value={acres} onChange={(n) => set({ acres: n })} />
+            </div>
           </>
         )}
 
