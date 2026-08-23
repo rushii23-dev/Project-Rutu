@@ -7,7 +7,7 @@ import { Card, Chip, EyebrowLabel } from '../components/ui.jsx'
 
 export default function Weather() {
   const { t, lang, village, district, districtName } = useStore()
-  const { week, current, isSample, loading } = useForecast(district)
+  const { week, current, isSample, loading, stale, ageHours } = useForecast(district)
   const today = useToday()
 
   const now = decodeWeather(current.code)
@@ -37,6 +37,11 @@ export default function Weather() {
             <div className="mt-1.5 text-[17px] font-medium text-ink-2">
               {isSample ? (loading ? t('fcLoading') : t('fcOffline')) : now[lang]}
             </div>
+            {!isSample && stale ? (
+              <span className="mt-2 inline-block rounded-lg bg-warn-l px-2 py-1 text-[11px] font-semibold text-warn-m">
+                {t('fcStale')}
+              </span>
+            ) : null}
           </div>
           {isSample ? null : <span className="text-[44px]">{now.icon}</span>}
         </div>
@@ -89,7 +94,9 @@ export default function Weather() {
         </div>
       )}
 
-      <h2 className="display mx-1 mb-3 mt-6 text-[22px] text-ink">{t('forecast7')}</h2>
+      <h2 className="display mx-1 mb-3 mt-6 text-[22px] text-ink">
+        {t('forecast7', { n: week.length })}
+      </h2>
       <Card className="px-5.5" style={{ paddingLeft: 22, paddingRight: 22 }}>
         {week.map((d, i) => {
           const w = decodeWeather(d.code)
@@ -135,11 +142,13 @@ export default function Weather() {
                 hi: 'मौसम सेवा से संपर्क नहीं हुआ. कनेक्शन मिलते ही अनुमान दिखेगा.',
                 en: 'Could not reach the forecast service. The forecast appears once a connection is available.',
               }[lang]
-            : {
-                mr: 'थेट अंदाज — Open-Meteo (विनामूल्य, API की लागत नाही).',
-                hi: 'लाइव अनुमान — Open-Meteo (निःशुल्क, API की ज़रूरत नहीं).',
-                en: 'Live forecast from Open-Meteo (free, no API key).',
-              }[lang]}
+            : stale
+              ? t('fcStaleNote', { n: Math.max(1, Math.round(ageHours)) })
+              : {
+                  mr: 'थेट अंदाज — Open-Meteo (विनामूल्य, API की लागत नाही).',
+                  hi: 'लाइव अनुमान — Open-Meteo (निःशुल्क, API की ज़रूरत नहीं).',
+                  en: 'Live forecast from Open-Meteo (free, no API key).',
+                }[lang]}
       </p>
     </div>
   )

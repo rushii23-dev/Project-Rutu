@@ -11,7 +11,7 @@ import { AlertCard, Card, Chip, EyebrowLabel, SampleBadge, SectionHead } from '.
 export default function Home() {
   const { t, lang, name, acres, district, districtName } = useStore()
   const nav = useNavigate()
-  const { week, isSample, loading } = useForecast(district)
+  const { week, isSample, loading, stale, ageHours } = useForecast(district)
   const todayKey = useToday()
 
   const onset = district.onset
@@ -146,7 +146,7 @@ export default function Home() {
       </Card>
 
       <SectionHead action={t('seeAll')} onAction={() => nav('/weather')}>
-        {t('next7')}
+        {t('next7', { n: week.length })}
       </SectionHead>
       <div className="sc flex overflow-x-auto rounded-[26px] bg-card px-2 py-4.5" style={{ paddingTop: 18, paddingBottom: 18 }}>
         {week.map((d, i) => {
@@ -174,6 +174,10 @@ export default function Home() {
       {isSample ? (
         <div className={`mt-2 text-[11px] ${loading ? 'text-faint' : 'text-warn-m'}`}>
           {loading ? t('fcLoading') : t('fcSampleTag')}
+        </div>
+      ) : stale ? (
+        <div className="mt-2 text-[11px] text-warn-m">
+          {t('fcStaleNote', { n: Math.max(1, Math.round(ageHours)) })}
         </div>
       ) : null}
 

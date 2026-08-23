@@ -88,8 +88,16 @@ export async function fetchForecast(lat, lon) {
     })
 
     const c = j.current || {}
+    // When the service worker answers from cache — which is the whole point of
+    // the offline story — this payload can be hours or a day old while the app
+    // happily calls it "live". navigator.onLine is no help: it still reported
+    // true with the server dead. The payload's own clock is the honest signal.
+    //
+    // `current.time` is local time in the requested zone (Asia/Kolkata) with no
+    // offset suffix, so parsing it as local time is correct on a phone in India.
     return {
       isSample: false,
+      fetchedAt: c.time || null,
       week,
       current: {
         temp: Math.round(c.temperature_2m ?? week[0].temp),
@@ -100,8 +108,21 @@ export async function fetchForecast(lat, lon) {
       },
     }
   } catch {
-    return { isSample: true, week: sampleWeek(), current: SAMPLE_CURRENT }
+    return { isSample: true, week: sampleWeek(), current: SAMPLE_CURRENT, fetchedAt: null }
   }
+}
+
+/**
+ * How old the reading is, in hours, or null when unknown.
+ * Anything past STALE_HOURS should not be presented as current conditions.
+ */
+export const STALE_HOURS = 2
+
+export function ageHours(fetchedAt, now = new Date()) {
+  if (!fetchedAt) return null
+  const t = new Date(fetchedAt)
+  if (isNaN(t)) return null
+  return (now - t) / 3600000
 }
 
 /**

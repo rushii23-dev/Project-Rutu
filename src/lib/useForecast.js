@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { fetchForecast, sampleWeek, SAMPLE_CURRENT } from '../data/weather.js'
+import { ageHours, fetchForecast, sampleWeek, SAMPLE_CURRENT, STALE_HOURS } from '../data/weather.js'
 import { useToday } from './useToday.js'
 
 /**
@@ -36,5 +36,12 @@ export function useForecast(district) {
   // Between the midnight rollover and the refetch landing, the cached week still
   // starts at yesterday. Never show a farmer a past day in a forecast.
   const week = (data.week || []).filter((d) => !d.iso || d.iso >= today)
-  return { ...data, week: week.length ? week : data.week }
+
+  // A cached response is still a real forecast, but it is not a live one. The
+  // service worker will serve yesterday's copy offline, so callers get the age
+  // and decide whether to present it as current.
+  const age = ageHours(data.fetchedAt)
+  const stale = age !== null && age > STALE_HOURS
+
+  return { ...data, week: week.length ? week : data.week, ageHours: age, stale }
 }
