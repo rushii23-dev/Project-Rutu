@@ -3,7 +3,13 @@ import { useNavigate } from 'react-router-dom'
 import { useStore } from '../lib/store.jsx'
 import { rupees } from '../i18n/index.js'
 import { SAMPLE_CROPS } from '../data/crops.js'
-import { DISEASE_MODEL, DISEASES, MIN_CONFIDENCE, canDiagnose } from '../data/diseases.js'
+import {
+  CONFUSABLE,
+  DISEASE_MODEL,
+  DISEASES,
+  MIN_CONFIDENCE,
+  MODEL_METRICS,
+} from '../data/diseases.js'
 import { costOf, diagnose, modelAvailable } from '../lib/diagnose.js'
 import { Card, EyebrowLabel, RoundIconButton, SampleBadge } from '../components/ui.jsx'
 
@@ -30,6 +36,7 @@ export default function Diagnose() {
   const [hasModel, setHasModel] = useState(null) // null = still checking
 
   const crop = SAMPLE_CROPS.find((c) => c.id === DISEASE_MODEL.crop)
+  const pct = Math.round(MODEL_METRICS.heldOutAccuracy * 100)
 
   useEffect(() => {
     modelAvailable().then(setHasModel)
@@ -195,6 +202,20 @@ export default function Diagnose() {
             </p>
           </div>
 
+          {CONFUSABLE.includes(result.id) ? (
+            <div className="mt-3 rounded-[26px] bg-chip px-5 py-4">
+              <p className="text-[15px] leading-relaxed text-ink-2">
+                {
+                  {
+                    mr: `करपा आणि उत्तरी करपा दोन्ही लांबट डाग पाडतात आणि मॉडेल यांच्यात गोंधळतं — या दोन वर्गांत ते १० पैकी सुमारे ७ वेळाच बरोबर असतं. फवारणीपूर्वी कृषी सहाय्यकाकडून खात्री करून घ्या.`,
+                    hi: `ग्रे लीफ स्पॉट और नॉर्दर्न लीफ ब्लाइट दोनों लंबे धब्बे बनाते हैं और मॉडल इनमें उलझता है — इन दो वर्गों में यह १० में से क़रीब ७ बार ही सही होता है. छिड़काव से पहले कृषि सहायक से पुष्टि कराएँ.`,
+                    en: `Gray leaf spot and northern leaf blight both make long lesions and the model confuses them — it is right about 7 times in 10 on these two classes, against 98% on rust. Confirm with an extension officer before spraying.`,
+                  }[lang]
+                }
+              </p>
+            </div>
+          ) : null}
+
           {/* the agronomy only matters once it is money */}
           {money ? (
             <div className="mt-3 rounded-[28px] bg-ink px-6 py-5">
@@ -227,9 +248,9 @@ export default function Diagnose() {
       <p className="mx-1 mt-4 text-[11px] leading-relaxed text-faint">
         {
           {
-            mr: 'हे मॉडेल PlantVillage या प्रयोगशाळेतल्या फोटोंवर शिकवलं आहे — पांढऱ्या पार्श्वभूमीवर एक पान. खऱ्या शेतातल्या फोटोत माती, सावली आणि अनेक पानं असतात, तिथे अचूकता घटते. एक पान म्हणजे पूर्ण शेत नाही. फवारणीपूर्वी कृषी सहाय्यकाला विचारा. फोटो तुमच्या फोनमधून बाहेर जात नाही.',
-            hi: 'यह मॉडल PlantVillage की प्रयोगशाला तस्वीरों पर सीखा है — सफ़ेद पृष्ठभूमि पर एक पत्ती. असली खेत की तस्वीर में मिट्टी, छाया और कई पत्तियाँ होती हैं, वहाँ सटीकता घटती है. एक पत्ती पूरा खेत नहीं. छिड़काव से पहले कृषि सहायक से पूछें. तस्वीर आपके फ़ोन से बाहर नहीं जाती.',
-            en: 'Trained on PlantVillage, which is laboratory photographs — one leaf on a plain background. Real field photos carry soil, shadow and several leaves, and accuracy drops there. One leaf is not the whole field. Ask an extension officer before spraying. The photo never leaves your phone.',
+            mr: `हे मॉडेल PlantVillage या प्रयोगशाळेतल्या फोटोंवर शिकवलं आहे — पांढऱ्या पार्श्वभूमीवर एक पान. अशा फोटोंवर ते ${pct}% बरोबर आहे; खऱ्या शेतातल्या फोटोत माती, सावली आणि अनेक पानं असतात, तिथे अचूकता घटते. एक पान म्हणजे पूर्ण शेत नाही. फवारणीपूर्वी कृषी सहाय्यकाला विचारा. फोटो तुमच्या फोनमधून बाहेर जात नाही.`,
+            hi: `यह मॉडल PlantVillage की प्रयोगशाला तस्वीरों पर सीखा है — सफ़ेद पृष्ठभूमि पर एक पत्ती. ऐसी तस्वीरों पर यह ${pct}% सही है; असली खेत की तस्वीर में मिट्टी, छाया और कई पत्तियाँ होती हैं, वहाँ सटीकता घटती है. एक पत्ती पूरा खेत नहीं. छिड़काव से पहले कृषि सहायक से पूछें. तस्वीर आपके फ़ोन से बाहर नहीं जाती.`,
+            en: `Trained on PlantVillage, which is laboratory photographs — one leaf on a plain background. ${pct}% correct on held-out laboratory images; real field photos carry soil, shadow and several leaves, and accuracy drops there. One leaf is not the whole field. Ask an extension officer before spraying. The photo never leaves your phone.`,
           }[lang]
         }
       </p>

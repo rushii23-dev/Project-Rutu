@@ -24,6 +24,34 @@
  * treatment classes are ordinary maize agronomy and are not invented.
  */
 
+/**
+ * Measured on the held-out split by scripts/train_disease.py. The full
+ * confusion matrix ships beside the weights in public/model/maize/metrics.json.
+ *
+ * 0.8667 is a LABORATORY number. PlantVillage is single detached leaves on
+ * plain backgrounds, and a random split puts near-duplicate photographs of the
+ * same leaf in train and test. Real field accuracy is lower and we have not
+ * measured it, because we have no field-collected Indian images to measure it
+ * against. The screen says so.
+ */
+export const MODEL_METRICS = {
+  heldOutAccuracy: 0.8667,
+  recall: {
+    gray_leaf_spot: 0.741,
+    common_rust: 0.981,
+    northern_leaf_blight: 0.706,
+    healthy: 1.0,
+  },
+}
+
+/**
+ * The two classes the model genuinely struggles to separate. Both present as
+ * elongated lesions, and 23 of the errors are these two swapped for each other.
+ * When one of them is the answer, the screen adds a caution rather than letting
+ * a 0.71-recall class read as confidently as a 0.98 one.
+ */
+export const CONFUSABLE = ['gray_leaf_spot', 'northern_leaf_blight']
+
 export const DISEASE_MODEL = {
   crop: 'maize',
   input: 224,

@@ -54,7 +54,10 @@ async function getModel() {
   if (!modelPromise) {
     modelPromise = (async () => {
       const tf = await getTf()
-      return tf.loadLayersModel(DISEASE_MODEL.url)
+      // A GRAPH model, not a layers model. The Keras-3 -> TF.js layers path
+      // needs the tf_keras compatibility stack, so train_disease.py exports a
+      // SavedModel and converts that instead. loadLayersModel cannot read it.
+      return tf.loadGraphModel(DISEASE_MODEL.url)
     })()
   }
   return modelPromise
@@ -96,17 +99,15 @@ export async function diagnose(img) {
     const model = await getModel()
     const canvas = toSquareCanvas(img, DISEASE_MODEL.input)
 
-    const probs = tf.tidy(() => {
-      // MobileNetV2 preprocessing: scale to [-1, 1]. Must match the training
-      // script exactly or every prediction is quietly wrong.
-      const x = tf.browser
-        .fromPixels(canvas)
-        .toFloat()
-        .div(127.5)
-        .sub(1)
-        .expandDims(0)
-      return model.predict(x).dataSync()
-    })
+    // MobileNetV2 preprocessing: scale to [-1, 1]. Must match the training
+    // script exactly or every prediction is quietly wrong.
+    const x = tf.tidy(() =>
+      tf.browser.fromPixels(canvas).toFloat().div(127.5).sub(1).expandDims(0),
+    )
+    const out = model.predict(x)
+    const probs = await out.data()
+    x.dispose()
+    out.dispose()
 
     const ranked = Array.from(probs)
       .map((p, i) => ({ id: DISEASE_MODEL.classes[i], p }))

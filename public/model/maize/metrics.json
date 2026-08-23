@@ -1,0 +1,24 @@
+{
+ "classes": ["gray_leaf_spot", "common_rust", "northern_leaf_blight", "healthy"],
+ "heldOutAccuracy": 0.8667,
+ "perClassRecall": {
+  "gray_leaf_spot": 0.741,
+  "common_rust": 0.981,
+  "northern_leaf_blight": 0.706,
+  "healthy": 1.0
+ },
+ "confusionMatrix": [
+  [60, 5, 12, 4],
+  [1, 101, 0, 1],
+  [11, 10, 60, 4],
+  [0, 0, 0, 91]
+ ],
+ "confusionMatrixNote": "rows = truth, cols = predicted, in the order of `classes`",
+ "trainedOn": "PlantVillage Corn/maize subset (laboratory images), 450 images per class, 1800 total",
+ "architecture": "MobileNetV2 ImageNet backbone, frozen; global average pool + dropout 0.2 + softmax head",
+ "epochs": 4,
+ "split": "80/20 stratified random, seed 1337",
+ "caveat": "Random split of laboratory photographs: single detached leaves on plain backgrounds. This OVERSTATES field accuracy, where soil, shadow and overlapping leaves are normal. PlantVillage images also derive from a small number of source plants, so a random split places near-duplicate photographs of the same leaf in both train and test. Not validated on Indian field images.",
+ "knownWeakness": "gray_leaf_spot and northern_leaf_blight are confused with each other in both directions (12 and 11 of the errors). Both present as elongated lesions and are genuinely hard to separate. Rust and healthy are reliable; the two blight-type classes are not.",
+ "reproduce": "python scripts/train_disease.py --data <PlantVillage>/raw/color --limit 450 --epochs 4"
+}
