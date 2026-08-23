@@ -93,25 +93,6 @@ Mobile-first PWA, Marathi-first, four buttons, one answer per screen.
 
 ---
 
-## Real vs sample — stated on screen, not buried
-
-We label our own limits. Every unsourced figure carries a **`नमुना आकडे` / sample figures** badge in the interface itself.
-
-| Data | Status | Source |
-|---|---|---|
-| Monsoon onset, trends, significance | ✅ **real** | IMD Pune, 0.25° grid, 1985–2025 |
-| Rain days, seasonal rainfall, dry spells | ✅ **real** | IMD Pune |
-| Current conditions + 7-day forecast | ✅ **live** | Open-Meteo |
-| Mandi prices, all 36 districts + market level | ✅ **real** | Agmarknet via data.gov.in |
-| Satellite vegetation (NDVI) | ✅ **real** | MODIS Terra via NASA GIBS |
-| Season and sowing windows | ✅ computed | date + crop calendar |
-| Per-acre yield, cost, income | ⚠️ **sample** | placeholder — needs CACP tables |
-| Crop water requirement, duration | ⚠️ **sample** | plausible, unsourced |
-
-Income = yield × price − cost. **Price is real; yield and cost are not yet.** So income figures stay badged until sourced.
-
----
-
 ## How the numbers are computed
 
 Every figure in the app can be defended, because none of it is a black box.
