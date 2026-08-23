@@ -27,7 +27,8 @@ import { Card, EyebrowLabel, RoundIconButton, SampleBadge } from '../components/
 export default function Diagnose() {
   const { t, lang, acres } = useStore()
   const nav = useNavigate()
-  const fileRef = useRef(null)
+  const camRef = useRef(null)
+  const pickRef = useRef(null)
   const imgRef = useRef(null)
 
   const [url, setUrl] = useState(null)
@@ -100,17 +101,21 @@ export default function Diagnose() {
         </Card>
       ) : null}
 
+      {/* `capture` opens the rear camera directly, but it also takes the
+          gallery away — so the saved-photo route needs its own input without
+          it. A farmer in a field taps the first; a demo indoors uses the second. */}
       <input
-        ref={fileRef}
+        ref={camRef}
         type="file"
         accept="image/*"
         capture="environment"
         onChange={pick}
         className="hidden"
       />
+      <input ref={pickRef} type="file" accept="image/*" onChange={pick} className="hidden" />
 
       <button
-        onClick={() => fileRef.current?.click()}
+        onClick={() => camRef.current?.click()}
         className="mt-3 flex w-full items-center gap-4 rounded-[26px] bg-grow px-5 py-4 text-left"
       >
         <span className="flex h-11 w-11 flex-none items-center justify-center rounded-full bg-white/20">
@@ -122,6 +127,23 @@ export default function Diagnose() {
         <span>
           <span className="block text-[17px] font-semibold text-white">{t('dxTake')}</span>
           <span className="block text-[14px] text-white/75">{t('dxTakeSub')}</span>
+        </span>
+      </button>
+
+      <button
+        onClick={() => pickRef.current?.click()}
+        className="mt-2.5 flex w-full items-center gap-4 rounded-[26px] bg-card px-5 py-4 text-left"
+      >
+        <span className="flex h-11 w-11 flex-none items-center justify-center rounded-full bg-chip">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4A4638" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="3" y="5" width="18" height="14" rx="2.5" />
+            <path d="m3 16 5-4 4 3 3-2 6 4" />
+            <circle cx="8.5" cy="9.5" r="1.4" />
+          </svg>
+        </span>
+        <span>
+          <span className="block text-[17px] font-semibold text-ink">{t('dxPick')}</span>
+          <span className="block text-[14px] text-muted">{t('dxPickSub')}</span>
         </span>
       </button>
 
