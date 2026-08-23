@@ -5,9 +5,9 @@ import districtData from '../data/districts.json'
 const KEY = 'ritu.v1'
 
 const DEFAULTS = {
-  // English on first run. A farmer switches to Marathi or Hindi from Profile;
+  // Marathi on first run (Maharashtra is Marathi-first). A farmer switches to English or Hindi from Profile;
   // the interface is fully translated either way.
-  lang: 'en',
+  lang: 'mr',
   onboarded: false,
   name: '',
   village: '',
