@@ -80,7 +80,10 @@ export async function fetchForecast(lat, lon) {
         dow: (dt.getDay() + 6) % 7, // 0 = Monday
         code: j.daily.weather_code[i] ?? 0,
         temp: Math.round(j.daily.temperature_2m_max[i] ?? 0),
-        mm: Math.round(j.daily.precipitation_sum[i] ?? 0),
+        // one decimal, not a whole number. Rounding 1.5 mm up to 2 and 0.4 mm
+        // down to 0 both misreport the forecast, and the thresholds below read
+        // this value — a drizzle day should not be rounded into a dry one.
+        mm: Math.round((j.daily.precipitation_sum[i] ?? 0) * 10) / 10,
       }
     })
 
@@ -102,16 +105,64 @@ export async function fetchForecast(lat, lon) {
 }
 
 /**
+ * The germination threshold this app advises against, in mm. It is the same
+ * number every crop card already prints ("sow after the first 50 mm"), so it
+ * lives here once rather than being restated in each branch below.
+ */
+export const SOW_MM = 50
+
+/**
  * Turns the forecast into the one sentence that matters before sowing:
  * is there enough rain coming to germinate a seed?
  */
 export function sowingAdvice(week, lang) {
   const next5 = week.slice(0, 5)
-  const total5 = next5.reduce((a, d) => a + d.mm, 0)
-  const dryRun = next5.every((d) => d.mm < 2.5)
-  const firstWet = week.findIndex((d) => d.mm >= 10)
+  const total5 = Math.round(next5.reduce((a, d) => a + d.mm, 0))
+  const total7 = Math.round(week.reduce((a, d) => a + d.mm, 0))
 
-  if (dryRun) {
+  // Only one branch may say "you can sow", and it is the one where the rain a
+  // farmer would act on has actually arrived inside the window he acts in.
+  //
+  // This used to also fire on `week.findIndex(d => d.mm >= 10) >= 0`, i.e. on a
+  // single wet day anywhere in seven — which produced "Enough rain for sowing /
+  // 3 mm expected this week", a green card contradicting its own body and
+  // telling a farmer to sow into dry soil. Rain on day 7 is not a reason to
+  // sow on day 1.
+  if (total5 >= SOW_MM) {
+    return {
+      tone: 'good',
+      title: {
+        mr: 'पेरणीसाठी पाऊस पुरेसा',
+        hi: 'बुवाई के लिए बारिश पर्याप्त',
+        en: 'Enough rain for sowing',
+      }[lang],
+      body: {
+        mr: `पुढील 5 दिवसांत ${total5} मिमी अपेक्षित. पेरणी करू शकता.`,
+        hi: `अगले 5 दिन में ${total5} मिमी अनुमानित. बुवाई कर सकते हैं.`,
+        en: `${total5} mm expected over the next 5 days. You can sow.`,
+      }[lang],
+    }
+  }
+
+  // enough is coming, but not yet — worth saying, because "wait" is easier to
+  // follow when the farmer knows what he is waiting for
+  if (total7 >= SOW_MM) {
+    return {
+      tone: 'warn',
+      title: {
+        mr: 'अजून नाही — पाऊस येतो आहे',
+        hi: 'अभी नहीं — बारिश आ रही है',
+        en: 'Not yet — rain is on the way',
+      }[lang],
+      body: {
+        mr: `पुढील 5 दिवसांत फक्त ${total5} मिमी, पण 7 दिवसांत ${total7} मिमी. मोठ्या पावसाची वाट पहा.`,
+        hi: `अगले 5 दिन में सिर्फ़ ${total5} मिमी, पर 7 दिन में ${total7} मिमी. बड़ी बारिश का इंतज़ार करें.`,
+        en: `Only ${total5} mm in the next 5 days, but ${total7} mm across 7. Wait for the heavier rain.`,
+      }[lang],
+    }
+  }
+
+  if (next5.every((d) => d.mm < 2.5)) {
     return {
       tone: 'warn',
       title: {
@@ -126,21 +177,7 @@ export function sowingAdvice(week, lang) {
       }[lang],
     }
   }
-  if (total5 >= 50 || firstWet >= 0) {
-    return {
-      tone: 'good',
-      title: {
-        mr: 'पेरणीसाठी पाऊस पुरेसा',
-        hi: 'बुवाई के लिए बारिश पर्याप्त',
-        en: 'Enough rain for sowing',
-      }[lang],
-      body: {
-        mr: 'पुढील आठवड्यात ' + Math.round(total5) + ' मिमी अपेक्षित. पेरणी करू शकता.',
-        hi: 'अगले हफ़्ते ' + Math.round(total5) + ' मिमी अनुमानित. बुवाई कर सकते हैं.',
-        en: Math.round(total5) + ' mm expected this week. You can sow.',
-      }[lang],
-    }
-  }
+
   return {
     tone: 'warn',
     title: {
@@ -149,9 +186,9 @@ export function sowingAdvice(week, lang) {
       en: 'Rain is light — wait',
     }[lang],
     body: {
-      mr: 'फक्त ' + Math.round(total5) + ' मिमी अपेक्षित. 50 मिमीनंतर पेरा.',
-      hi: 'केवल ' + Math.round(total5) + ' मिमी अनुमानित. 50 मिमी के बाद बोएँ.',
-      en: 'Only ' + Math.round(total5) + ' mm expected. Sow after 50 mm.',
+      mr: `पुढील 5 दिवसांत फक्त ${total5} मिमी अपेक्षित. ${SOW_MM} मिमीनंतर पेरा.`,
+      hi: `अगले 5 दिन में केवल ${total5} मिमी अनुमानित. ${SOW_MM} मिमी के बाद बोएँ.`,
+      en: `Only ${total5} mm expected over the next 5 days. Sow after ${SOW_MM} mm.`,
     }[lang],
   }
 }

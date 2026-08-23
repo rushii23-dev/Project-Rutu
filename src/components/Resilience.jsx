@@ -121,9 +121,9 @@ export default function Resilience({ crop }) {
       <p className="mx-1 mt-2 text-[11px] leading-relaxed text-faint">
         {
           {
-            mr: `${districtName()}च्या स्वतःच्या ४१ वर्षांच्या पावसाच्या नोंदीवरून — हंगामी पाऊस, पावसाचा खंड आणि मान्सूनची तारीख. पिकाची पाण्याची गरज ही ढोबळ कृषिशास्त्रीय मापं आहेत, अजून राज्याच्या शिफारशींशी जुळवलेली नाहीत.`,
-            hi: `${districtName()} के अपने ४१ साल के बारिश रिकॉर्ड से — मौसमी बारिश, बारिश का खंड और मानसून की तारीख़. फ़सल की पानी की ज़रूरत मोटे कृषि अनुमान हैं, अभी राज्य की सिफ़ारिशों से मिलाए नहीं गए.`,
-            en: `Computed from ${districtName()}'s own 41-year rainfall record — seasonal total, dry-spell length and onset date. Crop water requirements are agronomic rules of thumb, not yet cited to the state package of practices.`,
+            mr: `${districtName()}च्या जून–सप्टेंबर पावसाची २०१६–२०२५ ची सरासरी, १९८५–१९९४ शी तुलना करून (IMD). पिकाची पाण्याची गरज ही ढोबळ कृषिशास्त्रीय मापं आहेत, अजून राज्याच्या शिफारशींशी जुळवलेली नाहीत.`,
+            hi: `${districtName()} की जून–सितंबर बारिश का २०१६–२०२५ औसत, १९८५–१९९४ से तुलना करके (IMD). फ़सल की पानी की ज़रूरत मोटे कृषि अनुमान हैं, अभी राज्य की सिफ़ारिशों से मिलाए नहीं गए.`,
+            en: `${districtName()}'s June–September rainfall, 2016–2025 mean against the 1985–1994 mean (IMD). Crop water requirements are agronomic rules of thumb, not yet cited to the state package of practices.`,
           }[lang]
         }
       </p>

@@ -101,9 +101,22 @@ function scoreIntent(intent, text) {
  * worse than not answering, so we match a trimmed stem too. Stems shorter than
  * three characters are not used — they would collide.
  */
+const DEVANAGARI = /[ऀ-ॿ]/
+
+/**
+ * Trimmed stems, for Devanagari only.
+ *
+ * Devanagari inflects by changing the stem, so a 1-2 character trim genuinely
+ * helps match "गव्हाची" against "गहू". Latin script does not inflect that way,
+ * and trimming there is actively harmful: stemming "wheat" yields "whe", which
+ * is a substring of "when" — so every English question beginning "when should
+ * I sow..." silently resolved to wheat. Latin names are matched whole, on a
+ * word boundary, and English inflection is handled by the explicit alias list.
+ */
 function stems(name) {
   const n = (name || '').toLowerCase().trim()
   if (!n) return []
+  if (!DEVANAGARI.test(n)) return [n]
   const out = [n]
   for (const cut of [1, 2]) {
     const st = n.slice(0, n.length - cut)
@@ -112,17 +125,22 @@ function stems(name) {
   return out
 }
 
+/** Whole-word containment for Latin script; plain containment for Devanagari. */
+function contains(text, form) {
+  if (DEVANAGARI.test(form)) return text.includes(form)
+  const esc = form.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  return new RegExp(`(^|[^a-z])${esc}([^a-z]|$)`).test(text)
+}
+
 function findCrop(text) {
   let best = null
   for (const c of SAMPLE_CROPS) {
     const forms = ['mr', 'hi', 'en'].flatMap((l) => stems(c.name[l]))
     for (const a of c.aliases || []) forms.push(a.toLowerCase())
-    {
-      for (const st of forms) {
-        // longest match wins, so "मूग" cannot hijack "भुईमूग"
-        if (text.includes(st) && (!best || st.length > best.len)) {
-          best = { crop: c, len: st.length }
-        }
+    for (const st of forms) {
+      // longest match wins, so "मूग" cannot hijack "भुईमूग"
+      if (contains(text, st) && (!best || st.length > best.len)) {
+        best = { crop: c, len: st.length }
       }
     }
   }
@@ -135,7 +153,7 @@ function findCrop(text) {
  * numbers came from so the UI can show provenance rather than assert.
  */
 export function ask(utterance, ctx) {
-  const { lang, district, districtName, acres, week } = ctx
+  const { lang, district, districtName, acres, week, isSample } = ctx
   const text = (utterance || '').toLowerCase().trim()
   if (!text) return null
 
@@ -158,16 +176,27 @@ export function ask(utterance, ctx) {
 
   switch (best.id) {
     case 'sow_when': {
-      const st = sowingStatus(SAMPLE_CROPS)
+      // If the farmer named a crop, answer about THAT crop's window. This used
+      // to always scan every crop, so "when should I sow soybean" replied with
+      // the nearest rabi date — a different crop in a different season.
+      const st = sowingStatus(crop ? [crop] : SAMPLE_CROPS)
       const win = fmtWindow({ from: st.from, to: st.to }, lang)
       const when = fmtDate(st.from, lang)
+      const named = crop ? crop.name[lang] : null
+
       if (st.phase === 'open') {
         return {
           intent: best.id, crop,
           text: {
-            mr: `पेरणीची खिडकी आत्ता सुरू आहे — ${win}. ${st.days} दिवस बाकी.`,
-            hi: `बुवाई की खिड़की अभी खुली है — ${win}. ${st.days} दिन बाक़ी.`,
-            en: `The sowing window is open now — ${win}. ${st.days} days left.`,
+            mr: named
+              ? `${named} — पेरणीची खिडकी आत्ता सुरू आहे, ${win}. ${st.days} दिवस बाकी.`
+              : `पेरणीची खिडकी आत्ता सुरू आहे — ${win}. ${st.days} दिवस बाकी.`,
+            hi: named
+              ? `${named} — बुवाई की खिड़की अभी खुली है, ${win}. ${st.days} दिन बाक़ी.`
+              : `बुवाई की खिड़की अभी खुली है — ${win}. ${st.days} दिन बाक़ी.`,
+            en: named
+              ? `The sowing window for ${named} is open now — ${win}. ${st.days} days left.`
+              : `The sowing window is open now — ${win}. ${st.days} days left.`,
           }[lang],
           source: 'IMD + crop calendar',
         }
@@ -175,9 +204,15 @@ export function ask(utterance, ctx) {
       return {
         intent: best.id, crop,
         text: {
-          mr: `पुढची पेरणी ${when} पासून — ${seasons[st.season]} हंगाम, ${st.days} दिवसांनी.`,
-          hi: `अगली बुवाई ${when} से — ${seasons[st.season]} मौसम, ${st.days} दिन में.`,
-          en: `Next sowing from ${when} — ${seasons[st.season]} season, in ${st.days} days.`,
+          mr: named
+            ? `${named} — पुढची पेरणी ${when} पासून, ${seasons[st.season]} हंगाम, ${st.days} दिवसांनी.`
+            : `पुढची पेरणी ${when} पासून — ${seasons[st.season]} हंगाम, ${st.days} दिवसांनी.`,
+          hi: named
+            ? `${named} — अगली बुवाई ${when} से, ${seasons[st.season]} मौसम, ${st.days} दिन में.`
+            : `अगली बुवाई ${when} से — ${seasons[st.season]} मौसम, ${st.days} दिन में.`,
+          en: named
+            ? `Next ${named} sowing from ${when} — ${seasons[st.season]} season, in ${st.days} days.`
+            : `Next sowing from ${when} — ${seasons[st.season]} season, in ${st.days} days.`,
         }[lang],
         source: 'IMD + crop calendar',
       }
@@ -216,6 +251,25 @@ export function ask(utterance, ctx) {
     }
 
     case 'rain': {
+      // The source line used to read "Open-Meteo (live)" unconditionally, which
+      // labelled the sample week as a live reading. Answer only from a forecast
+      // we actually fetched.
+      if (isSample) {
+        return {
+          intent: best.id, crop,
+          text: {
+            mr: 'हवामान सेवेशी संपर्क झाला नाही',
+            hi: 'मौसम सेवा से संपर्क नहीं हुआ',
+            en: 'Could not reach the forecast service',
+          }[lang],
+          detail: {
+            mr: 'अंदाज मिळाल्याशिवाय पावसाबद्दल उत्तर देणार नाही.',
+            hi: 'अनुमान मिले बिना बारिश के बारे में जवाब नहीं देंगे.',
+            en: 'We will not answer a rain question without a forecast in hand.',
+          }[lang],
+          source: null,
+        }
+      }
       // sowingAdvice already states the millimetres — do not restate them here
       const a = sowingAdvice(week, lang)
       return {

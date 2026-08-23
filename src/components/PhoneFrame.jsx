@@ -33,11 +33,27 @@ function useIsWide() {
   return wide
 }
 
+/**
+ * The phone chrome. The clock is the real local time, not the 9:41 every
+ * mockup ships with — a frozen marketing clock above a live forecast is the
+ * one detail that makes a working app look like a slide.
+ *
+ * The signal and battery glyphs stay decorative: the browser exposes no
+ * reliable reading for either, so they are drawn as static chrome rather than
+ * invented values.
+ */
 function StatusBar() {
+  const [now, setNow] = useState(() => new Date())
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 15000)
+    return () => clearInterval(id)
+  }, [])
+  const hh = now.getHours()
+  const mm = String(now.getMinutes()).padStart(2, '0')
   return (
     <div className="num relative z-10 flex h-[52px] items-end justify-between px-7 pb-1.5 text-[13px] font-semibold text-ink">
-      <span>9:41</span>
-      <span className="flex items-center gap-1.5 text-[11px] tracking-wide">2G ▮▮▯ 68%</span>
+      <span>{`${((hh + 11) % 12) + 1}:${mm}`}</span>
+      <span className="flex items-center gap-1.5 text-[11px] tracking-wide">2G ▮▮▯</span>
     </div>
   )
 }

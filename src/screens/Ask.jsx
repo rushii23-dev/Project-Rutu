@@ -29,7 +29,7 @@ export default function Ask() {
 
   function respond(text) {
     setHeard(text)
-    setAnswer(ask(text, { lang, district, districtName, acres, week: forecast.week }))
+    setAnswer(ask(text, { lang, district, districtName, acres, week: forecast.week, isSample: forecast.isSample }))
   }
 
   return (

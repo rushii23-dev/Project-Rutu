@@ -11,13 +11,16 @@ import { AlertCard, Card, Chip, EyebrowLabel, SampleBadge, SectionHead } from '.
 export default function Home() {
   const { t, lang, name, acres, district, districtName } = useStore()
   const nav = useNavigate()
-  const { week, isSample } = useForecast(district)
+  const { week, isSample, loading } = useForecast(district)
   const todayKey = useToday()
 
   const onset = district.onset
   const today = fmtDoy(onset.todayDoy, lang)
   const father = fmtDoy(onset.fatherDoy, lang)
-  const advice = sowingAdvice(week, lang)
+  // Never derive a sowing recommendation from the sample week. Until the real
+  // forecast lands, this card must say it has no forecast rather than issue an
+  // authoritative-sounding instruction computed from invented rainfall.
+  const advice = isSample ? null : sowingAdvice(week, lang)
 
   // the season the farmer is actually in, from today's date — not hardcoded
   const season = seasonForDate()
@@ -60,7 +63,18 @@ export default function Home() {
         </button>
       </div>
 
-      <AlertCard tone={advice.tone} title={advice.title} body={advice.body} />
+      {advice ? (
+        <AlertCard tone={advice.tone} title={advice.title} body={advice.body} />
+      ) : (
+        <div className="mt-4 rounded-[26px] bg-chip px-5 py-4">
+          <div className="text-[17px] font-semibold text-ink-2">
+            {loading ? t('fcLoading') : t('fcOffline')}
+          </div>
+          <div className="mt-0.5 text-[15px] leading-snug text-muted">
+            {loading ? t('fcLoadingBody') : t('fcOfflineBody')}
+          </div>
+        </div>
+      )}
 
       {/* question entry — a farmer with a question should not have to navigate */}
       <button
@@ -125,21 +139,23 @@ export default function Home() {
                 {relDayLabel(d.iso, todayKey, lang)}
               </span>
               <span className="num text-[10px] text-hint">{fmtIsoShort(d.iso, lang)}</span>
-              <span className="text-[19px]">{w.icon}</span>
-              <span className="num text-base font-semibold text-ink">{d.temp}°</span>
+              <span className="text-[19px]">{isSample ? '' : w.icon}</span>
+              <span className="num text-base font-semibold text-ink">
+                {isSample ? '—' : `${d.temp}°`}
+              </span>
               <span
                 className="num text-[13px] font-medium"
-                style={{ color: d.mm ? '#2E6B3F' : '#C1531B' }}
+                style={{ color: isSample ? '#8A8574' : d.mm ? '#2E6B3F' : '#C1531B' }}
               >
-                {d.mm ? d.mm : '—'}
+                {isSample || !d.mm ? '—' : d.mm}
               </span>
             </div>
           )
         })}
       </div>
       {isSample ? (
-        <div className="mt-2 text-[11px] text-warn-m">
-          {{ mr: 'हवामान जोडलं नाही — नमुना आकडे', hi: 'मौसम जुड़ा नहीं — नमूना आँकड़े', en: 'Forecast offline — sample figures' }[lang]}
+        <div className={`mt-2 text-[11px] ${loading ? 'text-faint' : 'text-warn-m'}`}>
+          {loading ? t('fcLoading') : t('fcSampleTag')}
         </div>
       ) : null}
 
