@@ -103,6 +103,10 @@ Every figure in the app can be defended, because none of it is a black box.
 
 **Significance** — [Mann–Kendall](https://en.wikipedia.org/wiki/Mann%E2%80%93Kendall_test) with tie correction. Trends at p ≥ 0.05 are reported as *not significant* and drawn accordingly.
 
+**Both are verified against outside references, not just asserted.** `scripts/verify_stats.py` extracts the shipped functions and checks them against `scipy.stats.theilslopes`, `scipy.stats.kendalltau`, `pymannkendall`, and a brute-force permutation test — exact at n=8, Monte Carlo at the real sample sizes. It also recomputes all 36 districts from the raw onsets and diffs them against the shipped `districts.json`, so a hand-edited number cannot survive. Run it: `python scripts/verify_stats.py`.
+
+Two districts sit just outside the line — Akola at p = 0.054 and Hingoli at p = 0.056. They are reported as not significant, because the threshold is applied without exception in either direction.
+
 **Years we cannot plot honestly, we name.** Nashik 1995 (28 Aug) and 2000 (6 Aug) fall outside the chart window and are pinned to the top edge with a caption. **2015 has no point at all** — the monsoon never met the onset criteria that year, which is correct: 2015 was a severe drought.
 
 ### A note on data provenance

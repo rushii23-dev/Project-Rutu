@@ -65,6 +65,9 @@ API credentials are read at build time from a git-ignored `.env.local` and never
 
 - Open data formats throughout — JSON, NetCDF, CSV
 - Established statistical methods, named and cited: Theil–Sen, Mann–Kendall
+- Those methods are **independently verified**, not merely named. `scripts/verify_stats.py` checks the shipped
+  implementations against scipy, pymannkendall and a permutation test, and reproduces every district from the
+  raw onsets. A reviewer does not have to take the significance claim on trust.
 - Trilingual interface (Marathi, Hindi, English) in Unicode Devanagari
 - Accessible by construction: WCAG-AA-oriented contrast, 16 px minimum body text, no hairline weights, `prefers-reduced-motion` respected
 - Installable PWA with a service worker: the app shell, precomputed data and satellite frames are precached, so it opens and answers offline on 2G. The live forecast uses network-first with a cached fallback.
