@@ -36,8 +36,24 @@ export default defineConfig({
         // the app shell, the precomputed data and the satellite frames are all
         // cached, so a farmer on 2G opens to a working advisory offline
         globPatterns: ['**/*.{js,css,html,png,svg,woff2}'],
+        // TensorFlow.js is ~1 MB and only the disease screen needs it.
+        // Precaching it would push that megabyte onto every farmer on 2G at
+        // first load, which is exactly what the lazy import avoids. It is
+        // fetched on demand and cached at runtime instead (rule below).
+        globIgnores: ['**/dist-*.js', '**/model/**'],
         maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
         runtimeCaching: [
+          {
+            // the tfjs chunk and the model weights: fetched once, then kept,
+            // so the second diagnosis works with no signal at all
+            urlPattern: /\/(assets\/dist-.*\.js|model\/.*)$/,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'ritu-disease-model',
+              expiration: { maxEntries: 40, maxAgeSeconds: 60 * 60 * 24 * 365 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
           {
             // live forecast: try the network, fall back to the last good copy
             urlPattern: /^https:\/\/api\.open-meteo\.com\/.*/i,

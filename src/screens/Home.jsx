@@ -92,6 +92,24 @@ export default function Home() {
         </span>
       </button>
 
+      {/* leaf diagnosis — demo step 6, so it must be one tap from the home
+          screen rather than buried inside a crop */}
+      <button
+        onClick={() => nav('/diagnose')}
+        className="mt-2.5 flex w-full items-center gap-4 rounded-[26px] bg-card px-5 py-4 text-left"
+      >
+        <span className="flex h-11 w-11 flex-none items-center justify-center rounded-full bg-grow-l">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2E6B3F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 8.5h3.5L8 6h8l1.5 2.5H21V19H3z" />
+            <circle cx="12" cy="13" r="3.5" />
+          </svg>
+        </span>
+        <span>
+          <span className="block text-[17px] font-semibold text-ink">{t('dxOpen')}</span>
+          <span className="block text-[14px] text-muted">{t('dxOpenSub')}</span>
+        </span>
+      </button>
+
       {/* the hero: the corrected sowing date */}
       <Card className="mt-3.5 px-6 pb-5 pt-6">
         <EyebrowLabel>{heroTitle}</EyebrowLabel>
