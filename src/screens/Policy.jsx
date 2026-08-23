@@ -248,12 +248,13 @@ export default function Policy() {
                   <li>Trend + significance method</li>
                   <li>Crop and rotation schema</li>
                   <li>Climate-resilience scoring rules</li>
-                  {/* the disease model is not built. Say so here rather than let
-                      the list imply it ships — README and DPG.md both disclose it. */}
-                  <li className="opacity-60">
+                  {/* Built now: MobileNetV2 head over the PlantVillage maize
+                      classes. The qualifier stays, because one crop of nine is
+                      the honest description of what actually crosses. */}
+                  <li>
                     Trained disease weights{' '}
-                    <span className="rounded bg-warn-l px-1.5 py-0.5 text-[11px] font-semibold text-warn-m">
-                      not built yet
+                    <span className="rounded bg-grow px-1.5 py-0.5 text-[11px] font-semibold text-white">
+                      maize only
                     </span>
                   </li>
                 </ul>
@@ -272,10 +273,11 @@ export default function Policy() {
             </div>
 
             <p className="mt-4 text-[15px] leading-relaxed text-muted">
-              The four rules above already work this way today. When the disease model
-              lands, it joins them on the same terms — a pattern learned in Maharashtra
-              improving detection in Karnataka without a single farmer record crossing
-              the border.
+              All five already work this way today. The disease weights are a 9 MB file
+              that a phone downloads once: a pattern learned in Maharashtra improves
+              detection in Karnataka without a single farmer record crossing the border.
+              The photograph is classified on the handset and never uploaded — which is
+              the same boundary, drawn at the level of one farmer rather than one state.
             </p>
           </div>
 
