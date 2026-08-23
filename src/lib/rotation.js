@@ -15,7 +15,6 @@ import { SAMPLE_CROPS, SEASON_KEYS } from '../data/crops.js'
  * TODO: once Soil Health Card N-P-K lands, anchor this to a real starting SOC.
  */
 
-const ORDER = { kharif: 0, rabi: 1, summer: 2 }
 
 /** Season that follows the given one in the cropping year. */
 export function nextSeason(season) {

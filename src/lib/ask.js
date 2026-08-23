@@ -1,4 +1,4 @@
-import { SAMPLE_CROPS, cropById } from '../data/crops.js'
+import { SAMPLE_CROPS } from '../data/crops.js'
 import { priceFor } from './prices.js'
 import { buildRotation, trajectorySummary } from './rotation.js'
 import { seasonForDate, sowingStatus } from './season.js'
@@ -153,7 +153,7 @@ function findCrop(text) {
  * numbers came from so the UI can show provenance rather than assert.
  */
 export function ask(utterance, ctx) {
-  const { lang, district, districtName, acres, week, isSample } = ctx
+  const { lang, district, districtName, week, isSample } = ctx
   const text = (utterance || '').toLowerCase().trim()
   if (!text) return null
 

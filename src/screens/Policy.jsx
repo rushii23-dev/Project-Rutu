@@ -63,7 +63,7 @@ export default function Policy() {
   const [hover, setHover] = useState(null)
   const districts = districtData.districts
 
-  const { pts, bounds } = useMemo(() => {
+  const { pts } = useMemo(() => {
     const lats = districts.map((d) => d.lat)
     const lons = districts.map((d) => d.lon)
     const b = {

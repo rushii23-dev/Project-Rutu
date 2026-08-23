@@ -7,7 +7,6 @@ import {
   soilTrajectory,
   trajectorySummary,
 } from '../lib/rotation.js'
-import { Chip } from './ui.jsx'
 
 /**
  * The three-season regenerative plan for a chosen starting crop.

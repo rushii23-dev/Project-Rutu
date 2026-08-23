@@ -23,7 +23,7 @@ const VERSION = '0.3.0'
  * a farmer opening Profile should find something worth acting on.
  */
 export default function Profile() {
-  const { t, lang, name, village, acres, district, districtId, districts, districtName, set, reset } =
+  const { t, lang, name, village, acres, district, districtId, districts, set, reset } =
     useStore()
   const nav = useNavigate()
 

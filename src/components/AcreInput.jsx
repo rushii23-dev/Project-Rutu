@@ -52,8 +52,9 @@ export default function AcreInput({ value, onChange, compact = false }) {
   const [focused, setFocused] = useState(false)
 
   useEffect(() => {
+    // intentionally keyed on `value` alone: re-syncing on `draft` would
+    // fight the user mid-typing
     if (Number(draft) !== value) setDraft(String(value))
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value])
 
   function commit(raw) {
