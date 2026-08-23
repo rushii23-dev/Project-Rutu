@@ -130,10 +130,16 @@ export default function Home() {
           {status.phase === 'next'
             ? t('windowPassed', { season: seasonNames[season], date: today })
             : onset.significant
-              ? {
-                  mr: `मान्सून ${onset.nYears} वर्षांत ${Math.abs(Math.round(onset.shiftDays))} दिवस लवकर येतो आहे.`,
-                  hi: `मानसून ${onset.nYears} साल में ${Math.abs(Math.round(onset.shiftDays))} दिन जल्दी आ रहा है.`,
-                  en: `The monsoon has moved ${Math.abs(Math.round(onset.shiftDays))} days earlier across ${onset.nYears} years.`,
+              ? // Direction comes from the sign, never from a hardcoded word.
+                // Both significant districts happen to have moved earlier, so
+                // "earlier" was baked in and read correctly by luck. Hingoli
+                // trends LATER at p = 0.056; one more year of record could take
+                // it under 0.05, and this line would then state the opposite of
+                // its own chart.
+                {
+                  mr: `मान्सून ${onset.nYears} वर्षांत ${Math.abs(Math.round(onset.shiftDays))} दिवस ${onset.shiftDays < 0 ? 'लवकर' : 'उशिरा'} येतो आहे.`,
+                  hi: `मानसून ${onset.nYears} साल में ${Math.abs(Math.round(onset.shiftDays))} दिन ${onset.shiftDays < 0 ? 'जल्दी' : 'देर से'} आ रहा है.`,
+                  en: `The monsoon has moved ${Math.abs(Math.round(onset.shiftDays))} days ${onset.shiftDays < 0 ? 'earlier' : 'later'} across ${onset.nYears} years.`,
                 }[lang]
               : t('notSignificant')}
         </p>
