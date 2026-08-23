@@ -5,6 +5,7 @@ import { fmtDoy } from '../i18n/index.js'
 import OnsetChart from '../components/OnsetChart.jsx'
 import { Card, EyebrowLabel, RoundIconButton } from '../components/ui.jsx'
 import Satellite from '../components/Satellite.jsx'
+import WhyDate from '../components/WhyDate.jsx'
 
 export default function Evidence() {
   const { t, lang, district, districtName, meta } = useStore()
@@ -53,7 +54,11 @@ export default function Evidence() {
         ←
       </RoundIconButton>
 
-      <div className="mt-6">
+      {/* The card the farmer tapped Why on showed a DATE. Answer that first;
+          the onset chart below is the evidence underneath the answer. */}
+      <WhyDate />
+
+      <div className="mt-8">
         <EyebrowLabel>{t('todayCorrected')}</EyebrowLabel>
       </div>
       <div className="mt-1.5 flex items-baseline gap-2.5">

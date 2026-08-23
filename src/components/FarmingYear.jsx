@@ -22,9 +22,9 @@ const BAND = {
 }
 
 export default function FarmingYear() {
-  const { t, lang } = useStore()
+  const { t, lang, district } = useStore()
   const seasons = getSeasons(lang)
-  const wins = seasonWindows(SAMPLE_CROPS)
+  const wins = seasonWindows(SAMPLE_CROPS, district)
 
   const now = new Date()
   const yearLen = 365

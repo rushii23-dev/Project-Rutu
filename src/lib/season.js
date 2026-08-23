@@ -87,14 +87,51 @@ function doy(year, m, d) {
   return Math.round((Date.UTC(year, m, d) - Date.UTC(year, 0, 1)) / MS_DAY) + 1
 }
 
+/** day-of-year -> {d, m}, inverse of doy() above. */
+function fromDoy(n) {
+  const dt = new Date(Date.UTC(2001, 0, 1))
+  dt.setUTCDate(dt.getUTCDate() + Math.round(n) - 1)
+  return { d: dt.getUTCDate(), m: dt.getUTCMonth() }
+}
+
+/**
+ * The sowing window for one crop IN ONE DISTRICT.
+ *
+ * This is the correction the whole project is named for, and it used to be
+ * missing. Every crop carried one fixed calendar window, so all 36 districts
+ * were told to sow soybean 13-22 June — including Ahmednagar, whose monsoon
+ * now arrives 11 July. That advised sowing 28 days before the rain, which is
+ * precisely the germination failure RITU exists to prevent.
+ *
+ * KHARIF is rain-triggered, so its window is expressed as days after THAT
+ * district's own corrected onset (from the IMD record) and moves with it.
+ *
+ * RABI and SUMMER are not. Rabi is sown on residual moisture after the kharif
+ * harvest and summer runs on well water, so both stay calendar windows. We do
+ * not have the evidence to shift them and will not invent a shift — the UI
+ * says which of the two a given date is.
+ */
+export function cropWindow(crop, district) {
+  if (crop.season !== 'kharif' || !crop.onsetWindow || !district?.onset) {
+    return { ...crop.window, basis: 'calendar' }
+  }
+  const base = district.onset.todayDoy
+  return {
+    from: fromDoy(base + crop.onsetWindow.from),
+    to: fromDoy(base + crop.onsetWindow.to),
+    basis: 'onset',
+  }
+}
+
 /** Widest sowing window per season, derived from whatever crops are loaded. */
-export function seasonWindows(crops) {
+export function seasonWindows(crops, district) {
   const out = {}
   for (const c of crops) {
-    const s = (out[c.season] ||= { from: c.window.from, to: c.window.to })
+    const w = cropWindow(c, district)
+    const s = (out[c.season] ||= { from: w.from, to: w.to, basis: w.basis })
     const y = 2001
-    if (doy(y, c.window.from.m, c.window.from.d) < doy(y, s.from.m, s.from.d)) s.from = c.window.from
-    if (doy(y, c.window.to.m, c.window.to.d) > doy(y, s.to.m, s.to.d)) s.to = c.window.to
+    if (doy(y, w.from.m, w.from.d) < doy(y, s.from.m, s.from.d)) s.from = w.from
+    if (doy(y, w.to.m, w.to.d) > doy(y, s.to.m, s.to.d)) s.to = w.to
   }
   return out
 }
@@ -106,8 +143,8 @@ export function seasonWindows(crops) {
  *   next     — every window this year has passed for the current season;
  *              `season` is the next one due and `days` counts to it
  */
-export function sowingStatus(crops, now = new Date()) {
-  const wins = seasonWindows(crops)
+export function sowingStatus(crops, district, now = new Date()) {
+  const wins = seasonWindows(crops, district)
   const y = now.getFullYear()
   const today = doy(y, now.getMonth(), now.getDate())
 
@@ -115,13 +152,14 @@ export function sowingStatus(crops, now = new Date()) {
     season,
     from: w.from,
     to: w.to,
+    basis: w.basis,
     start: doy(y, w.from.m, w.from.d),
     end: doy(y, w.to.m, w.to.d),
   }))
 
   const open = entries.find((e) => today >= e.start && today <= e.end)
   if (open) {
-    return { phase: 'open', season: open.season, from: open.from, to: open.to, days: open.end - today }
+    return { phase: 'open', season: open.season, from: open.from, to: open.to, basis: open.basis, days: open.end - today }
   }
 
   const ahead = entries.filter((e) => e.start > today).sort((a, b) => a.start - b.start)
@@ -129,7 +167,7 @@ export function sowingStatus(crops, now = new Date()) {
     const n = ahead[0]
     // "upcoming" if it is the season we are already in, otherwise "next"
     const phase = n.season === seasonForDate(now) ? 'upcoming' : 'next'
-    return { phase, season: n.season, from: n.from, to: n.to, days: n.start - today }
+    return { phase, season: n.season, from: n.from, to: n.to, basis: n.basis, days: n.start - today }
   }
 
   // everything this year has passed — wrap to the earliest window next year
@@ -140,6 +178,7 @@ export function sowingStatus(crops, now = new Date()) {
     season: first.season,
     from: first.from,
     to: first.to,
+    basis: first.basis,
     days: daysInYear - today + first.start,
   }
 }
@@ -157,11 +196,12 @@ export function sowingStatus(crops, now = new Date()) {
  *   upcoming — days until it opens, this year
  *   passed   — days until it opens again next year
  */
-export function cropWindowStatus(crop, now = new Date()) {
+export function cropWindowStatus(crop, district, now = new Date()) {
+  const w = cropWindow(crop, district)
   const y = now.getFullYear()
   const today = doy(y, now.getMonth(), now.getDate())
-  const start = doy(y, crop.window.from.m, crop.window.from.d)
-  const end = doy(y, crop.window.to.m, crop.window.to.d)
+  const start = doy(y, w.from.m, w.from.d)
+  const end = doy(y, w.to.m, w.to.d)
 
   if (today >= start && today <= end) return { phase: 'open', days: end - today }
   if (today < start) return { phase: 'upcoming', days: start - today }

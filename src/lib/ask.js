@@ -179,7 +179,7 @@ export function ask(utterance, ctx) {
       // If the farmer named a crop, answer about THAT crop's window. This used
       // to always scan every crop, so "when should I sow soybean" replied with
       // the nearest rabi date — a different crop in a different season.
-      const st = sowingStatus(crop ? [crop] : SAMPLE_CROPS)
+      const st = sowingStatus(crop ? [crop] : SAMPLE_CROPS, district)
       const win = fmtWindow({ from: st.from, to: st.to }, lang)
       const when = fmtDate(st.from, lang)
       const named = crop ? crop.name[lang] : null

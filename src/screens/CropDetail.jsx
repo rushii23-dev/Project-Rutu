@@ -6,7 +6,7 @@ import { priceFor, priceSource } from '../lib/prices.js'
 import { Card, Chip, EyebrowLabel, RoundIconButton, SampleBadge } from '../components/ui.jsx'
 import Rotation from '../components/Rotation.jsx'
 import Resilience from '../components/Resilience.jsx'
-import { cropWindowStatus } from '../lib/season.js'
+import { cropWindow, cropWindowStatus } from '../lib/season.js'
 
 export default function CropDetail() {
   const { t, lang, acres, districtId } = useStore()
@@ -17,7 +17,7 @@ export default function CropDetail() {
   const seasonNames = getSeasons(lang)
   const waterNames = getWaterLevels(lang)
   const price = priceFor(c.id, districtId)
-  const win = cropWindowStatus(c)
+  const win = cropWindowStatus(c, district)
   const winLabel = {
     open: t('winOpenNow', { n: win.days }),
     upcoming: t('winUpcoming', { n: win.days }),
@@ -147,7 +147,7 @@ export default function CropDetail() {
 
       <div className="mt-3.5 rounded-[28px] bg-ink p-6">
         <EyebrowLabel tone="ghost">{t('sowingWindow')}</EyebrowLabel>
-        <div className="display mt-2 text-[38px] text-white">{fmtWindow(c.window, lang)}</div>
+        <div className="display mt-2 text-[38px] text-white">{fmtWindow(cropWindow(c, district), lang)}</div>
         {/* a window without "where are we now" reads as an instruction */}
         <div
           className={`mt-2 inline-block rounded-2xl px-3 py-1.5 text-[14px] font-semibold ${

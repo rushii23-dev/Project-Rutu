@@ -17,7 +17,7 @@ export default function Onboarding() {
 
   const district = districts.find((d) => d.id === districtId)
   // the window that is actually next, not soybean's regardless of month
-  const status = sowingStatus(SAMPLE_CROPS)
+  const status = sowingStatus(SAMPLE_CROPS, district)
   const window = fmtWindow({ from: status.from, to: status.to }, lang)
 
   const canNext =

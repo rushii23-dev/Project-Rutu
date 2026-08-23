@@ -28,6 +28,9 @@ export const SAMPLE_CROPS = [
     water: 'mid',
     duration: [95, 105],
     sow: { d: 13, m: 5 },
+    // Kharif sowing follows the rain, not the calendar: this window is
+    // 0-9 days after THIS district's corrected onset. See lib/season.js.
+    onsetWindow: { from: 0, to: 9 },
     window: { from: { d: 13, m: 5 }, to: { d: 22, m: 5 } },
     SAMPLE_goodPerAcre: 35000,
     SAMPLE_poorPerAcre: 26000,
@@ -73,6 +76,9 @@ export const SAMPLE_CROPS = [
     water: 'mid',
     duration: [100, 110],
     sow: { d: 15, m: 5 },
+    // Kharif sowing follows the rain, not the calendar: this window is
+    // 1-11 days after THIS district's corrected onset. See lib/season.js.
+    onsetWindow: { from: 1, to: 11 },
     window: { from: { d: 15, m: 5 }, to: { d: 25, m: 5 } },
     SAMPLE_goodPerAcre: 30500,
     SAMPLE_poorPerAcre: 22000,
@@ -118,6 +124,9 @@ export const SAMPLE_CROPS = [
     water: 'low',
     duration: [80, 90],
     sow: { d: 18, m: 5 },
+    // Kharif sowing follows the rain, not the calendar: this window is
+    // 4-16 days after THIS district's corrected onset. See lib/season.js.
+    onsetWindow: { from: 4, to: 16 },
     window: { from: { d: 18, m: 5 }, to: { d: 30, m: 5 } },
     SAMPLE_goodPerAcre: 19500,
     SAMPLE_poorPerAcre: 14000,
@@ -163,6 +172,9 @@ export const SAMPLE_CROPS = [
     water: 'high',
     duration: [160, 180],
     sow: { d: 13, m: 5 },
+    // Kharif sowing follows the rain, not the calendar: this window is
+    // 0-7 days after THIS district's corrected onset. See lib/season.js.
+    onsetWindow: { from: 0, to: 7 },
     window: { from: { d: 13, m: 5 }, to: { d: 20, m: 5 } },
     SAMPLE_goodPerAcre: 46500,
     SAMPLE_poorPerAcre: 31500,

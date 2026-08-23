@@ -8,7 +8,7 @@ import { cropWindowStatus } from '../lib/season.js'
 import { Chip, SampleBadge } from '../components/ui.jsx'
 
 export default function Crops() {
-  const { t, lang, acres, districtId } = useStore()
+  const { t, lang, acres, districtId, district } = useStore()
   const nav = useNavigate()
   const [season, setSeason] = useState('kharif')
 
@@ -58,7 +58,7 @@ export default function Crops() {
                 {c.duration[0]}–{c.duration[1]} {t('days')}
               </Chip>
               {(() => {
-                const w = cropWindowStatus(c)
+                const w = cropWindowStatus(c, district)
                 return (
                   <span
                     className={`rounded-2xl px-3.5 py-1.5 text-[13px] font-medium ${

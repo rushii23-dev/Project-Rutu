@@ -32,7 +32,7 @@ export default function Profile() {
   const [confirmReset, setConfirmReset] = useState(false)
 
   const season = seasonForDate()
-  const status = sowingStatus(SAMPLE_CROPS)
+  const status = sowingStatus(SAMPLE_CROPS, district)
   const seasons = getSeasons(lang)
   const onset = district.onset
 

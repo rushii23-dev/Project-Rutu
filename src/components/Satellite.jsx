@@ -17,7 +17,30 @@ const W = 300
 const H = 120
 
 export default function Satellite() {
-  const { t, lang } = useStore()
+  const { t, lang, district, districtName } = useStore()
+
+  // The NDVI layer is precomputed for ONE district. Showing it under the
+  // heading "your district from orbit" while the farmer has another district
+  // selected labels Nashik's imagery as his own field. Show it only where it
+  // is actually true, and say plainly that the rest are not built yet.
+  if (district.id !== ndvi.source.district) {
+    return (
+      <section className="mt-7">
+        <h2 className="display mx-1 text-[22px] text-ink">{t('satellite')}</h2>
+        <Card className="mt-3 px-5 py-4">
+          <p className="text-[15px] leading-relaxed text-muted">
+            {
+              {
+                mr: `उपग्रहाचा थर सध्या फक्त ${ndvi.source.district} जिल्ह्यासाठी तयार केला आहे. ${districtName()}साठी तो अजून काढलेला नाही, आणि दुसऱ्या जिल्ह्याचं चित्र तुमचं म्हणून दाखवणार नाही.`,
+                hi: `उपग्रह की परत अभी सिर्फ़ ${ndvi.source.district} ज़िले के लिए बनाई गई है. ${districtName()} के लिए अभी नहीं निकाली गई, और दूसरे ज़िले की तस्वीर आपकी बताकर नहीं दिखाएँगे.`,
+                en: `The satellite layer is precomputed for ${ndvi.source.district} only. It has not been computed for ${districtName()}, and we will not show another district's imagery as yours.`,
+              }[lang]
+            }
+          </p>
+        </Card>
+      </section>
+    )
+  }
 
   const plotted = ndvi.series.filter((s) => s.index !== null)
   const cloudy = plotted.filter((s) => !s.reliable)

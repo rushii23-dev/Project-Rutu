@@ -29,7 +29,7 @@ export default function Home() {
 
   // which sowing window today actually falls in, so the hero card cannot show a
   // date that has already passed
-  const status = sowingStatus(SAMPLE_CROPS)
+  const status = sowingStatus(SAMPLE_CROPS, district)
   const showSeason = status.phase === 'next' ? status.season : season
   const inSeason = SAMPLE_CROPS.filter((c) => c.season === showSeason).slice(0, 2)
 
