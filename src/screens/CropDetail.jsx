@@ -9,7 +9,7 @@ import Resilience from '../components/Resilience.jsx'
 import { cropWindow, cropWindowStatus } from '../lib/season.js'
 
 export default function CropDetail() {
-  const { t, lang, acres, districtId } = useStore()
+  const { t, lang, acres, districtId, district } = useStore()
   const { id } = useParams()
   const nav = useNavigate()
 
