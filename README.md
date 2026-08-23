@@ -198,7 +198,9 @@ Assessed against all nine indicators of the DPG Standard in **[DPG.md](DPG.md)**
 ## Roadmap
 
 - [x] Climate-resilience score per crop, computed from each district's own 41-year record
-- [ ] Leaf-photo disease diagnosis (PlantVillage transfer learning)
+- [x] Leaf-photo disease diagnosis for **maize**, in-browser, no upload (PlantVillage transfer learning)
+- [ ] Disease coverage for the other eight crops — blocked on data, not on modelling: PlantVillage has no disease
+      class for soybean, cotton, wheat, gram, onion, bajra, groundnut or moong
 - [x] `/policy` — district map of onset shift and significance across Maharashtra
 - [x] Federation roster showing what a second national node would require
 - [x] Regenerative three-season rotation with relative soil-nitrogen balance
