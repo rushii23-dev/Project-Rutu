@@ -17,118 +17,52 @@
 
 ---
 
-## The problem
+## The idea
 
-For generations, Indian farming knowledge passed down orally — and it worked, because the climate was stable. A farmer's father sowed when the monsoon arrived. That rule was correct for fifty years.
+A farmer sows on the date his father sowed. That date was right for fifty years. The climate moved underneath it and nobody told him.
 
-It is not correct anymore.
+Most advisories recommend a crop. RITU corrects the **calendar** — it measures when the monsoon actually arrives in *your* block now, and moves the sowing window to match.
 
-So the farmer follows the rule his father gave him, **and the crop fails.** Not from ignorance. Because the ground rules moved underneath him and he had no instrument to detect it.
+## What the data says
 
-**Traditional knowledge is not wrong. It is outdated.** RITU is the instrument that measures the difference.
+We computed monsoon onset for every district-year from 41 years of IMD daily rainfall, and tested every trend for significance.
 
----
+**Nashik's monsoon arrives 14 days earlier than it did in 1985** — 27 June → 14 June, −5.2 days per decade, p = 0.018. Dhule the same. It also rains more, on more days, with shorter dry spells.
 
-## What we found
+Onset across Maharashtra spans **38 days**, from 3 June in Ratnagiri to 11 July in Ahmednagar — which is why one statewide sowing date is wrong almost everywhere.
 
-We pulled **41 years of daily gridded rainfall** from the India Meteorological Department for all **36 districts of Maharashtra**, computed the agricultural monsoon onset for every district-year, and tested every trend for statistical significance.
+**In 34 of 36 districts we found no significant shift, and the app says so** rather than drawing a trend line that isn't there.
 
-The result was not what we expected, and we kept it anyway.
+## What it does
 
-### Nashik — the monsoon arrives 14 days earlier than it did in 1985
+**Farmer view** (`/`) — phone-sized, Marathi first, everything in rupees.
 
-| Measure | 1985–1994 | 2016–2025 | Trend | p |
-|---|---|---|---|---|
-| Monsoon onset | **27 Jun** | **14 Jun** | −5.2 d/decade | **0.018** |
-| Rain days (JJAS) | 41.6 | 54.1 | +4.3 d/decade | 0.002 |
-| Seasonal rainfall | 546 mm | 800 mm | +85 mm/decade | 0.005 |
-| Longest dry spell | 19.0 d | 13.8 d | −1.8 d/decade | 0.016 |
+- **Corrected sowing window**, counted from your district's own onset — and a *Why this date* screen explaining how it was derived, and what we do **not** claim
+- **Climate-resilience score** per crop, from that district's rainfall record
+- **Regenerative rotation** — three seasons, with the soil-nitrogen trajectory
+- **Leaf disease diagnosis** from a photo, run on the phone, never uploaded
+- Live weather with sowing advice · real mandi prices · satellite vegetation
+- **Ask** — typed questions in Marathi, Hindi or English, answered from data we hold, never generated
+- Installs as a PWA and works offline
 
-Nashik's monsoon starts two weeks earlier, delivers **47% more water** across **12 more rainy days**, and breaks for five fewer days. A sowing date inherited from the 1980s is now a fortnight late.
+**State view** (`/policy`) — laptop-sized. All 36 districts mapped by onset shift and significance, plus the federation model: *models cross borders, farmer records do not.*
 
-### And in 34 of 36 districts, we found nothing — so we say nothing
+## What's real and what isn't
 
-Only **Nashik** (p = 0.018) and **Dhule** (p = 0.009) show a statistically significant onset trend at p < 0.05.
+The app labels its own limits on screen, not just here.
 
-For every other district the app states plainly:
-
-> *"Across 41 years, Latur shows no measurable shift in the monsoon date. We will not pretend otherwise."*
-
-and the trend line renders **dashed and grey** instead of confident orange.
-
-**This is the most important design decision in the project.** An advisory that admits what it cannot measure is one a farmer can trust about everything else.
-
----
-
-## The app
-
-Mobile-first PWA, Marathi-first, four buttons, one answer per screen.
-
-| Screen | What it does |
+| Real | Sample / limited |
 |---|---|
-| **Welcome** | Language choice before anything else — it gates comprehension |
-| **Onboarding** | Name, district, village, acreage — four questions, one per screen |
-| **Dashboard** | Live weather warning, the corrected sowing window, 7-day forecast, crops for the current season |
-| **Crops** | Every crop by season, with real mandi prices |
-| **Crop detail** | Why this crop, expected income for *your* acreage, sowing window |
-| **Weather** | Live conditions, dated 7-day forecast, and what to actually do about it |
-| **Evidence** | The 41-year onset chart, supporting shifts, and full data provenance |
-| **`/policy`** | State surface: all 36 districts mapped by onset shift and significance, plus the federation model |
-| **Ask** | Typed questions in any of the three languages, answered from verified data |
-| **Profile** | Edit details in place, switch district, the cropping year with today marked, and today's best-paying markets |
+| Onset, trends, significance (IMD, 1985–2025) | Per-acre income — placeholder, badged in the UI |
+| Rainfall stats: rain days, totals, dry spells | Crop water needs — agronomic rules of thumb |
+| Live forecast (Open-Meteo) | Disease loss and treatment costs — unsourced |
+| Mandi prices, all 36 districts (Agmarknet) | Satellite layer — Nashik only |
+| Disease model, maize, 86.7% on held-out lab images | Disease covers **1 of 9 crops** — PlantVillage has no disease class for the rest |
+| | Soil nitrogen is a *relative* balance from crop type, not a soil test — no Soil Health Card data yet |
 
-### Details that matter
+The disease model declines to answer below 60% confidence, and warns when the answer is one of the two classes it genuinely confuses.
 
-**The dashboard knows what day it is.** The season is computed from the date, not hardcoded. On 21 August it does not tell a farmer to sow in a window that closed in June — it shows the *next* actionable window and says the kharif one has passed.
-
-**It rolls over at midnight.** Three independent triggers — an exact-midnight timeout, a 30-second interval, and wake/visibility events — because on a phone no single one is reliable. Past days are filtered out of the forecast.
-
-**The background reads the sky.** Season plus live weather select an atmosphere: drifting rain, monsoon-break haze, low summer sun. Cards stay white and ink stays near-black, so sunlight contrast is untouched. All motion respects `prefers-reduced-motion`.
-
-**Three languages.** Marathi, Hindi, English — every string, including crop copy and agronomic reasoning.
-
-**Ask it a question.** Answers are **retrieved, never generated**: every reply is composed from the IMD series, the live forecast, real mandi prices or the rotation rules, and carries the source on screen. A model that hallucinates a sowing date would cause the exact failure this project exists to prevent. Crop names are matched on oblique forms too, because a farmer says *कांद्याचा*, not *कांदा*.
-
-**Installable.** Service worker precaches the shell, the data and the satellite frames, so it opens offline on 2G.
-
----
-
-## How the numbers are computed
-
-Every figure in the app can be defended, because none of it is a black box.
-
-**Agricultural monsoon onset** — the first day on or after 1 June where the next 7 days accumulate ≥ 25 mm, with no dry spell longer than 7 consecutive days (< 2.5 mm daily) in the following 30 days. This rejects a false start that would germinate seed and then kill it.
-
-**Trend** — [Theil–Sen](https://en.wikipedia.org/wiki/Theil%E2%80%93Sen_estimator) slope, which is robust to the outlier years that a least-squares fit would chase.
-
-**Significance** — [Mann–Kendall](https://en.wikipedia.org/wiki/Mann%E2%80%93Kendall_test) with tie correction. Trends at p ≥ 0.05 are reported as *not significant* and drawn accordingly.
-
-**Both are verified against outside references, not just asserted.** `scripts/verify_stats.py` extracts the shipped functions and checks them against `scipy.stats.theilslopes`, `scipy.stats.kendalltau`, `pymannkendall`, and a brute-force permutation test — exact at n=8, Monte Carlo at the real sample sizes. It also recomputes all 36 districts from the raw onsets and diffs them against the shipped `districts.json`, so a hand-edited number cannot survive. Run it: `python scripts/verify_stats.py`.
-
-Two districts sit just outside the line — Akola at p = 0.054 and Hingoli at p = 0.056. They are reported as not significant, because the threshold is applied without exception in either direction.
-
-**Years we cannot plot honestly, we name.** Nashik 1995 (28 Aug) and 2000 (6 Aug) fall outside the chart window and are pinned to the top edge with a caption. **2015 has no point at all** — the monsoon never met the onset criteria that year, which is correct: 2015 was a severe drought.
-
-### A note on data provenance
-
-We began with ERA5 reanalysis via Open-Meteo's archive and got a *different answer per district*. The literature is direct about why: ERA5 shows a post-2000 change point over India that likely reflects changes in assimilated observing systems rather than real precipitation, and reanalyses are considered unsuitable for Indian monsoon trend work without ground validation.
-
-So we switched to IMD's ground-station gridded product. **Open-Meteo remains our live forecast; it is not our evidence base.**
-
----
-
-## Data sources
-
-| Source | Use | Key needed |
-|---|---|---|
-| [IMD Pune gridded rainfall](https://www.imdpune.gov.in/cmpg/Griddata/Rainfall_25_NetCDF.html) | 0.25° daily rainfall, 1985–2025 | no |
-| [Open-Meteo](https://open-meteo.com) | live conditions + 7-day forecast | no |
-| [Agmarknet via data.gov.in](https://data.gov.in/resource/current-daily-price-various-commodities-various-markets-mandi) | daily mandi prices | free key |
-| [NASA GIBS](https://gibs.earthdata.nasa.gov) | MODIS NDVI vegetation imagery | no |
-
-Total cost: **₹0**. No paid APIs.
-
----
+The statistics are verified against scipy, pymannkendall and a permutation test — run `python scripts/verify_stats.py`.
 
 ## Run it
 
@@ -137,82 +71,40 @@ npm install
 npm run dev
 ```
 
-Opens at `http://localhost:5173`. On a desktop it renders inside a phone bezel; on a phone it fills the screen.
-
-### Reproduce the data
-
-Everything in `src/data/` is generated by the scripts in `scripts/` — nothing is hand-written.
-
 ```bash
-python scripts/fetch_imd_rainfall.py
-```
-Downloads 41 NetCDF files from IMD, extracts the nearest grid cell for all 36 districts, and deletes each 25 MB file after use. Requires `scipy` and `numpy` only — the files are NetCDF-3, so no `netCDF4` or `xarray` needed.
-
-```bash
-python scripts/build_districts.py
-```
-Computes onset, Theil–Sen slope and Mann–Kendall p-value per district → `src/data/districts.json`.
-
-```bash
-cp .env.example .env.local   # paste your data.gov.in key
-python scripts/fetch_mandi_prices.py
+npm run check
 ```
 
-```bash
-python scripts/fetch_satellite_ndvi.py
-```
-Pulls MODIS NDVI composites from NASA GIBS for the district bounding box, measures
-greenness across a cropping year, and writes two static frames plus `src/data/ndvi.json`.
-Records the cloud fraction per date and distinguishes a cloud-obscured reading from a
-date GIBS never published — an empty tile is not a measurement of zero.
-Pulls daily mandi prices → `src/data/prices.json`.
+`check` lints and builds. Everything in `src/data/` is regenerated by the scripts in `scripts/` — nothing is hand-written.
 
-> **Run the price script sparingly.** data.gov.in rate-limits aggressively and signals it with `HTTP 200` and the message `"No query was recieved."` rather than a `429`. The script is deliberately sequential.
+## Data sources
 
-The API key is read from `.env.local` at build time and **never enters the browser bundle** — which also means prices work offline on 2G.
+| Source | Use | Key |
+|---|---|---|
+| [IMD Pune](https://www.imdpune.gov.in/cmpg/Griddata/Rainfall_25_NetCDF.html) | 0.25° daily rainfall, 1985–2025 | no |
+| [Open-Meteo](https://open-meteo.com) | live conditions + 7-day forecast | no |
+| [Agmarknet](https://data.gov.in/resource/current-daily-price-various-commodities-various-markets-mandi) | daily mandi prices | free |
+| [NASA GIBS](https://gibs.earthdata.nasa.gov) | MODIS NDVI imagery | no |
+| [PlantVillage](https://github.com/spMohanty/PlantVillage-Dataset) | leaf disease training images | no |
 
----
+Total cost: **₹0**.
 
 ## Stack
 
-React 19 · Vite 8 · Tailwind 4 · React Router 7
+React 19 · Vite 8 · Tailwind 4 · TensorFlow.js (lazy-loaded, kept out of the first paint)
 
-No chart library. The onset chart is hand-written SVG — Recharts' `ResponsiveContainer` intermittently measured 0×0 and rendered an empty chart *with no error*, which is not a failure mode a live demo can afford. Removing it also cut the bundle by 220 KB.
-
-Fonts: Tiro Devanagari Hindi (display), Anek Devanagari (UI), Inter (figures).
-
----
+The onset chart is hand-written SVG. Recharts intermittently measured 0×0 and rendered an empty chart *with no error* — not a failure mode a live demo can afford.
 
 ## Digital public good
 
-Assessed against all nine indicators of the DPG Standard in **[DPG.md](DPG.md)**.
+Assessed against all nine DPG Standard indicators in **[DPG.md](DPG.md)**. MIT licensed, open JSON schema, every derived file reproducible from a script.
 
-- **MIT licensed** — see [LICENSE](LICENSE)
-- **Open data schema** — `src/data/districts.json` and `src/data/prices.json` are plain, documented JSON
-- **Reproducible** — every derived file is regenerated by a script in `scripts/`
-- **Portable method** — the export is the *method*, not the app. Any region with a rainfall archive and a crop calendar can run this. Adding a crop is one JSON object; adding a district is one row.
-- **Sovereign by design** — states share models and methods, never farmer records
-
----
-
-## Roadmap
-
-- [x] Climate-resilience score per crop, computed from each district's own 41-year record
-- [x] Leaf-photo disease diagnosis for **maize**, in-browser, no upload (PlantVillage transfer learning)
-- [ ] Disease coverage for the other eight crops — blocked on data, not on modelling: PlantVillage has no disease
-      class for soybean, cotton, wheat, gram, onion, bajra, groundnut or moong
-- [x] `/policy` — district map of onset shift and significance across Maharashtra
-- [x] Federation roster showing what a second national node would require
-- [x] Regenerative three-season rotation with relative soil-nitrogen balance
-- [ ] Soil Health Card N-P-K integration
-- [ ] Source per-acre yield and cost from CACP tables, retiring the sample badges
+The export is the **method**, not the app. Any region with a rainfall archive and a crop calendar can run this — adding a district is one row.
 
 ---
 
 <div align="center">
 
 **RITU — the calendar, corrected.**
-
-*"We call it RITU — season. The Sanskrit calendar divided the year into six ritus so farmers would know when to sow. That calendar worked for two thousand years. It stopped working twenty years ago, and nobody rewrote it. We did."*
 
 </div>
