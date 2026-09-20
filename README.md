@@ -38,6 +38,7 @@ Onset across Maharashtra spans **38 days**, from 3 June in Ratnagiri to 11 July 
 **Farmer view** (`/`) — phone-sized, Marathi first, everything in rupees.
 
 - **Corrected sowing window**, counted from your district's own onset — and a *Why this date* screen explaining how it was derived, and what we do **not** claim
+- **Which crop, and why not the others** — every crop of the season ranked side by side, each one given its own reason for losing, priced in rupees, with the ranking model printed on the screen
 - **Climate-resilience score** per crop, from that district's rainfall record
 - **Regenerative rotation** — three seasons, with the soil-nitrogen trajectory
 - **Leaf disease diagnosis** from a photo, run on the phone, never uploaded

@@ -92,6 +92,23 @@ export default function Home() {
         </span>
       </button>
 
+      {/* the crop-choice comparison: the question a farmer actually arrives
+          with, so it sits above the per-crop screens rather than inside one */}
+      <button
+        onClick={() => nav('/compare')}
+        className="mt-2.5 flex w-full items-center gap-4 rounded-[26px] bg-card px-5 py-4 text-left"
+      >
+        <span className="flex h-11 w-11 flex-none items-center justify-center rounded-full bg-grow-l">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2E6B3F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M5 20V10M12 20V5M19 20v-7" />
+          </svg>
+        </span>
+        <span>
+          <span className="block text-[17px] font-semibold text-ink">{t('cmpOpen')}</span>
+          <span className="block text-[14px] text-muted">{t('cmpOpenSub')}</span>
+        </span>
+      </button>
+
       {/* leaf diagnosis — demo step 6, so it must be one tap from the home
           screen rather than buried inside a crop */}
       <button
