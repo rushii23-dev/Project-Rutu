@@ -1,0 +1,84 @@
+name: Refresh mandi prices
+
+# Agmarknet publishes a new day of arrivals every trading day, and the app ships
+# prices as a precomputed file. Without this the file ages silently — it was 29
+# days old before anyone noticed, with its own stale date printed on screen.
+#
+# Refreshing here rather than in the browser keeps three things true: the
+# data.gov.in key never enters the client bundle, the app still works offline
+# from a static file, and there is no server to run.
+#
+# A commit here triggers whatever is watching the repo (Vercel), so a refreshed
+# price file deploys itself.
+
+on:
+  schedule:
+    # 08:00 and 18:00 IST. Arrivals trickle in through the trading day, so the
+    # evening run usually has fuller coverage than the morning one.
+    - cron: '30 2 * * *'
+    - cron: '30 12 * * *'
+  workflow_dispatch:
+    inputs:
+      force:
+        description: 'Overwrite even if coverage shrank (use only if you know why)'
+        type: boolean
+        default: false
+
+concurrency:
+  group: refresh-prices
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          # the script is pure standard library — nothing to install
+
+      - name: Fetch prices
+        id: fetch
+        env:
+          DATA_GOV_KEY: ${{ secrets.DATA_GOV_KEY }}
+        run: |
+          if [ -z "$DATA_GOV_KEY" ]; then
+            echo "::error::DATA_GOV_KEY secret is not set. Add it in Settings > Secrets and variables > Actions."
+            exit 1
+          fi
+          set +e
+          python scripts/fetch_mandi_prices.py ${{ inputs.force && '--force' || '' }}
+          code=$?
+          set -e
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+          # 2 = markets shut or barely trading (Sunday, holiday). Expected, not a failure.
+          # 1 = rate-limited or a blackout response. Worth a warning, not a red run.
+          case $code in
+            0) echo "fetched a full trading day" ;;
+            2) echo "::notice::Thin trading day — existing prices left untouched." ;;
+            1) echo "::warning::Fetch aborted (rate limit or empty response). Prices left untouched." ;;
+            *) echo "::error::Unexpected failure ($code)"; exit $code ;;
+          esac
+
+      - name: Commit if the file changed
+        run: |
+          if git diff --quiet -- src/data/prices.json; then
+            echo "no change — nothing to commit"
+            exit 0
+          fi
+          FETCHED=$(python -c "import json;print(json.load(open('src/data/prices.json',encoding='utf-8'))['source']['fetched'])")
+          COUNT=$(python -c "import json;print(len(json.load(open('src/data/prices.json',encoding='utf-8'))['districts']))")
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/data/prices.json
+          git commit -m "Refresh mandi prices ($FETCHED, $COUNT districts)
+
+          Automated by .github/workflows/refresh-prices.yml — Agmarknet via
+          data.gov.in. The script refuses to overwrite a fuller day with a
+          thinner one, so a Sunday cannot wipe a Friday."
+          git push

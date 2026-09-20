@@ -10,7 +10,7 @@ Usage:  python fetch_prices.py
 """
 import json, os, sys, time, urllib.parse, urllib.request, datetime, statistics, collections
 
-ROOT = r"D:/Project RITU"
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "src/data/prices.json")
 RESOURCE = "9ef84268-d588-465a-a308-a864a43d0070"
 BASE = "https://api.data.gov.in/resource/" + RESOURCE
@@ -36,6 +36,8 @@ COMMODITY_TO_CROP = {
 # Agmarknet uses several pre-rename spellings. Map them onto our district ids.
 FROM_AGMARK = {
     "Chhatrapati Sambhajinagar": "Ch.Sambhajinagar",
+    "Chattrapati Sambhajinagar": "Ch.Sambhajinagar",
+    "Amarawati": "Amravati",
     "Aurangabad": "Ch.Sambhajinagar",
     "Dharashiv(Usmanabad)": "Dharashiv",
     "Osmanabad": "Dharashiv",
@@ -52,10 +54,25 @@ def log(m):
 
 
 def key():
-    for line in open(os.path.join(ROOT, ".env.local"), encoding="utf-8"):
-        if line.startswith("DATA_GOV_KEY="):
-            return line.split("=", 1)[1].strip()
-    raise SystemExit("DATA_GOV_KEY missing from .env.local")
+    """The data.gov.in key, from the environment first, then .env.local.
+
+    CI passes it as a secret in the environment so the key never lands on a
+    runner's disk; a developer keeps using the git-ignored .env.local file.
+    """
+    env = os.environ.get("DATA_GOV_KEY", "").strip()
+    if env:
+        return env
+    path = os.path.join(ROOT, ".env.local")
+    if os.path.exists(path):
+        for line in open(path, encoding="utf-8"):
+            if line.startswith("DATA_GOV_KEY="):
+                v = line.split("=", 1)[1].strip()
+                if v:
+                    return v
+    raise SystemExit(
+        "DATA_GOV_KEY not found. Set it in the environment, or copy "
+        ".env.example to .env.local and paste your free key from data.gov.in"
+    )
 
 
 API_KEY = key()
@@ -189,6 +206,19 @@ if len(rows) < 10:
     log("  That is the signature of a rate-limited key, not an empty market day.")
     log(f"  {OUT} left untouched. Try again later.")
     raise SystemExit(1)
+
+# Mandis close on Sundays and holidays. Such a day returns real data, just very
+# little of it, so the row guard above passes and a thin file replaces a full
+# one. Refuse to shrink district coverage unless asked to.
+FORCE = "--force" in sys.argv
+if os.path.exists(OUT) and not FORCE:
+    prev = json.load(open(OUT, encoding="utf-8")).get("districts", {})
+    if prev and len(per_district) < 0.6 * len(prev):
+        log("")
+        log(f"ABORTED: {len(per_district)} districts now vs {len(prev)} already on disk.")
+        log("  Markets are shut or barely trading today -- likely a Sunday or a holiday.")
+        log(f"  {OUT} left untouched. Re-run on a trading day, or pass --force.")
+        raise SystemExit(2)
 
 payload = {
     "source": {

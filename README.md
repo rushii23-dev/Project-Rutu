@@ -85,11 +85,13 @@ Deploys to Vercel as-is: import the repo, no settings to change. `vercel.json` r
 |---|---|---|
 | [IMD Pune](https://www.imdpune.gov.in/cmpg/Griddata/Rainfall_25_NetCDF.html) | 0.25° daily rainfall, 1985–2025 | no |
 | [Open-Meteo](https://open-meteo.com) | live conditions + 7-day forecast | no |
-| [Agmarknet](https://data.gov.in/resource/current-daily-price-various-commodities-various-markets-mandi) | daily mandi prices | free |
+| [Agmarknet](https://data.gov.in/resource/current-daily-price-various-commodities-various-markets-mandi) | daily mandi prices, refreshed twice a day by CI | free |
 | [NASA GIBS](https://gibs.earthdata.nasa.gov) | MODIS NDVI imagery | no |
 | [PlantVillage](https://github.com/spMohanty/PlantVillage-Dataset) | leaf disease training images | no |
 
 Total cost: **₹0**.
+
+Prices refresh themselves: `.github/workflows/refresh-prices.yml` runs twice a day, commits `src/data/prices.json` when it changes, and the commit redeploys. The key lives in the `DATA_GOV_KEY` repository secret and never enters the bundle. A Sunday or holiday returns a thin day, so the script refuses to shrink district coverage and leaves the fuller file alone.
 
 ## Stack
 
