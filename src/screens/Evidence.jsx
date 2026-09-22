@@ -6,6 +6,7 @@ import OnsetChart from '../components/OnsetChart.jsx'
 import { Card, EyebrowLabel, RoundIconButton } from '../components/ui.jsx'
 import Satellite from '../components/Satellite.jsx'
 import WhyDate from '../components/WhyDate.jsx'
+import LateCost from '../components/LateCost.jsx'
 
 export default function Evidence() {
   const { t, lang, district, districtName, meta } = useStore()
@@ -101,6 +102,9 @@ export default function Evidence() {
           </Card>
         ))}
       </div>
+
+      {/* what the gap costs, with the trial it is priced from */}
+      <LateCost detail />
 
       <Satellite />
 
