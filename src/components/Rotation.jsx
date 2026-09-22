@@ -26,7 +26,7 @@ export default function Rotation({ crop }) {
   const peak = Math.max(1, ...traj.map((p) => Math.abs(p.n)))
 
   return (
-    <section className="mt-7">
+    <section id="rotation" className="mt-7 scroll-mt-4">
       <div className="mx-1 mb-1 flex items-baseline justify-between">
         <h2 className="display text-[22px] text-ink">{t('rotation')}</h2>
         {regen ? (
