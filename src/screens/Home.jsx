@@ -8,6 +8,7 @@ import { decodeWeather, sowingAdvice } from '../data/weather.js'
 import { SAMPLE_CROPS } from '../data/crops.js'
 import { AlertCard, Card, Chip, EyebrowLabel, SampleBadge, SectionHead } from '../components/ui.jsx'
 import FieldCard, { pickFieldCrop } from '../components/FieldCard.jsx'
+import LateCost from '../components/LateCost.jsx'
 import { cropsInField } from '../lib/field.js'
 
 export default function Home() {
@@ -177,6 +178,9 @@ export default function Home() {
           {t('whyShort')} <span className="text-[15px]">→</span>
         </button>
       </Card>
+
+      {/* the old date against the new one, priced — every figure sourced */}
+      <LateCost />
 
       <SectionHead action={t('seeAll')} onAction={() => nav('/weather')}>
         {t('next7', { n: week.length })}
