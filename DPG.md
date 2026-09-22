@@ -93,7 +93,11 @@ This is where most agricultural advisory tools fail, so it is stated in detail.
 
 **Questions are answered by retrieval, not generation.** The question screen composes every answer from data the app already holds — IMD onset, live forecast, Agmarknet prices, rotation rules — and never from a language model. A model that hallucinates a sowing date would cause exactly the germination failure this project exists to prevent, and a farmer cannot audit a fluent wrong answer. When no intent matches, it says it did not understand rather than guessing.
 
-**Absolute soil figures are withheld.** The rotation engine reports a *relative* nitrogen balance derived from crop type, not an organic-carbon percentage. Without a Soil Health Card reading for a specific field, an absolute figure would be fabricated.
+**Soil figures are the district's odds, and say so.** Soil Health Card results are published per district as counts of tested fields, not per farmer. The app shows "74% of fields tested in Nashik are low in nitrogen" and states on the same screen that this is not a reading of the farmer's field — then tells him where to get one, free. The rotation engine still reports a *relative* nitrogen balance rather than inventing a starting organic-carbon percentage for a field nobody tested.
+
+**Selling advice is a record, not a forecast.** *When to sell* shows what waiting has paid in each of the last 11 years in that district, and in how many of them it paid at all. The one assumed number — a 1%-a-month cost of holding — is printed next to the advice. Onion carries an extra warning that stored onion loses weight, which the price record cannot see.
+
+**Rupee figures name their source on the card.** The cost of sowing on the old date cites the field trial it is priced from and shows its four measured yields.
 
 ---
 
