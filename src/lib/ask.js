@@ -5,6 +5,7 @@ import { seasonForDate, sowingStatus } from './season.js'
 import { sowingAdvice } from '../data/weather.js'
 import { MONTHS_FULL, fmtDate, fmtDoy, fmtWindow, getSeasons } from '../i18n/index.js'
 import { sellAdvice } from './sell.js'
+import { pct, soilFor } from './soil.js'
 
 /**
  * Ask RITU — retrieval-grounded question answering in Marathi, Hindi or English.
@@ -61,9 +62,9 @@ const INTENTS = [
   {
     id: 'rotation',
     kw: {
-      mr: ['नंतर', 'पुढच', 'फेरपालट', 'क्रम', 'जमिनीचा कस', 'नत्र'],
-      hi: ['बाद', 'अगली', 'चक्र', 'फेरबदल', 'उर्वरता', 'नाइट्रोजन'],
-      en: ['after', 'next season', 'rotation', 'rotate', 'soil', 'nitrogen'],
+      mr: ['नंतर', 'पुढच', 'फेरपालट', 'क्रम'],
+      hi: ['बाद', 'अगली', 'चक्र', 'फेरबदल'],
+      en: ['after', 'next season', 'rotation', 'rotate'],
     },
   },
   {
@@ -74,6 +75,14 @@ const INTENTS = [
       mr: ['कधी विक', 'केव्हा विक', 'विकू की', 'थांबू', 'साठव'],
       hi: ['कब बेच', 'बेचूँ या', 'रोकूँ', 'रोक कर', 'भंडार'],
       en: ['when to sell', 'when should i sell', 'when do i sell', 'sell now', 'hold', 'store'],
+    },
+  },
+  {
+    id: 'soil',
+    kw: {
+      mr: ['माती', 'मृदा', 'जमिनीचा कस', 'नत्र', 'खत', 'सेंद्रिय'],
+      hi: ['मिट्टी', 'मृदा', 'उर्वरता', 'नाइट्रोजन', 'खाद', 'जैविक'],
+      en: ['soil', 'nitrogen', 'fertiliser', 'fertilizer', 'carbon', 'zinc'],
     },
   },
   {
@@ -370,6 +379,35 @@ export function ask(utterance, ctx) {
                   en: `In ${where}, waiting paid in only ${a.best.wins} of ${a.best.n} years.`,
                 }[lang],
         source: `Agmarknet, ${a.years} years of prices`,
+      }
+    }
+
+    case 'soil': {
+      const sl = soilFor(district.id)
+      if (!sl) {
+        return {
+          intent: best.id, crop,
+          text: {
+            mr: `${districtName()}साठी मृदा चाचण्या उपलब्ध नाहीत.`,
+            hi: `${districtName()} के लिए मिट्टी जाँच उपलब्ध नहीं.`,
+            en: `There are no soil tests on record for ${districtName()}.`,
+          }[lang],
+          source: 'Soil Health Card',
+        }
+      }
+      return {
+        intent: best.id, crop,
+        text: {
+          mr: `${districtName()}मध्ये ${pct(sl.n[0])}% शेतांत नत्र कमी, ${pct(sl.oc[0])}% शेतांत सेंद्रिय कर्ब कमी.`,
+          hi: `${districtName()} में ${pct(sl.n[0])}% खेतों में नाइट्रोजन कम, ${pct(sl.oc[0])}% में जैविक कार्बन कम.`,
+          en: `In ${districtName()}, ${pct(sl.n[0])}% of fields tested are low in nitrogen and ${pct(sl.oc[0])}% low in organic carbon.`,
+        }[lang],
+        detail: {
+          mr: 'फेरपालटीत कडधान्य ठेवा. तुमच्या शेताची पत्रिका मोफत काढून घ्या — हा जिल्ह्याचा अंदाज आहे, तुमच्या शेताचा नाही.',
+          hi: 'फ़सल-चक्र में दलहन रखें. अपने खेत का कार्ड मुफ़्त बनवाएँ — यह ज़िले का अनुमान है, आपके खेत का नहीं.',
+          en: 'Keep a legume in your rotation, and get your own field tested free — these are the district odds, not your field.',
+        }[lang],
+        source: `Soil Health Card ${sl.cycle}, ${sl.samples.toLocaleString('en-IN')} tests`,
       }
     }
 
