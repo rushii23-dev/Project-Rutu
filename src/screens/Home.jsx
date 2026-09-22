@@ -9,6 +9,7 @@ import { SAMPLE_CROPS } from '../data/crops.js'
 import { AlertCard, Card, Chip, EyebrowLabel, SampleBadge, SectionHead } from '../components/ui.jsx'
 import FieldCard, { pickFieldCrop } from '../components/FieldCard.jsx'
 import LateCost from '../components/LateCost.jsx'
+import SoilSummary from '../components/SoilSummary.jsx'
 import { cropsInField } from '../lib/field.js'
 
 export default function Home() {
@@ -47,6 +48,7 @@ export default function Home() {
   const sowingNow = status.phase === 'open' || (status.phase === 'upcoming' && status.days <= 21)
   const inField = cropsInField(SAMPLE_CROPS, district)
   const active = pickFieldCrop(inField, fieldCrop)
+
   const heroCount =
     status.phase === 'open'
       ? t('daysLeft', { n: status.days })
@@ -181,6 +183,8 @@ export default function Home() {
 
       {/* the old date against the new one, priced — every figure sourced */}
       <LateCost />
+
+      <SoilSummary />
 
       <SectionHead action={t('seeAll')} onAction={() => nav('/weather')}>
         {t('next7', { n: week.length })}
