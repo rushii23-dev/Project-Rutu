@@ -64,6 +64,9 @@ The app labels its own limits on screen, not just here.
 | Rainfall stats: rain days, totals, dry spells | Crop water needs — agronomic rules of thumb |
 | Live forecast (Open-Meteo) | Disease loss and treatment costs — unsourced |
 | Mandi prices, all 36 districts (Agmarknet) | Satellite layer — Nashik only |
+| 11 years of mandi prices behind *when to sell* (Agmarknet, 2015–2026) | The 1%-a-month cost of holding a crop — our stated assumption |
+| Soil Health Card results, 34 districts, 3 cycles | Soil is the district's odds, not the farmer's field — the screen says so |
+| Late-sowing loss rate (published field trial) | That trial is one season at Akola, applied to Nashik — labelled an estimate |
 | Disease model, maize, 86.7% on held-out lab images | Disease covers **1 of 9 crops** — PlantVillage has no disease class for the rest |
 | | Soil nitrogen is a *relative* balance from crop type, not a soil test — no Soil Health Card data yet |
 
