@@ -68,7 +68,7 @@ The app labels its own limits on screen, not just here.
 | Soil Health Card results, 34 districts, 3 cycles | Soil is the district's odds, not the farmer's field — the screen says so |
 | Late-sowing loss rate (published field trial) | That trial is one season at Akola, applied to Nashik — labelled an estimate |
 | Disease model, maize, 86.7% on held-out lab images | Disease covers **1 of 9 crops** — PlantVillage has no disease class for the rest |
-| | Soil nitrogen is a *relative* balance from crop type, not a soil test — no Soil Health Card data yet |
+| | Crop stage is estimated from the corrected sowing window, not observed |
 
 The disease model declines to answer below 60% confidence, and warns when the answer is one of the two classes it genuinely confuses.
 
