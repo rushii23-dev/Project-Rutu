@@ -7,6 +7,7 @@ import { priceFor } from '../lib/prices.js'
 import { Card, Chip, EyebrowLabel, RoundIconButton, SampleBadge } from '../components/ui.jsx'
 import Rotation from '../components/Rotation.jsx'
 import Resilience from '../components/Resilience.jsx'
+import SellTiming from '../components/SellTiming.jsx'
 import { cropWindow, cropWindowStatus } from '../lib/season.js'
 
 export default function CropDetail() {
@@ -121,6 +122,9 @@ export default function CropDetail() {
           </div>
         )}
       </Card>
+
+      {/* where to sell (above) and when to sell, side by side */}
+      <SellTiming crop={c} />
 
       <h2 className="display mx-1 mb-3 mt-7 text-[22px] text-ink">{t('whyThisCrop')}</h2>
       <div className="flex flex-col gap-2.5">
