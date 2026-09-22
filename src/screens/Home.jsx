@@ -7,9 +7,11 @@ import { useToday } from '../lib/useToday.js'
 import { decodeWeather, sowingAdvice } from '../data/weather.js'
 import { SAMPLE_CROPS } from '../data/crops.js'
 import { AlertCard, Card, Chip, EyebrowLabel, SampleBadge, SectionHead } from '../components/ui.jsx'
+import FieldCard, { pickFieldCrop } from '../components/FieldCard.jsx'
+import { cropsInField } from '../lib/field.js'
 
 export default function Home() {
-  const { t, lang, name, acres, district, districtName } = useStore()
+  const { t, lang, name, acres, district, districtName, fieldCrop, set } = useStore()
   const nav = useNavigate()
   const { week, isSample, loading, stale, ageHours } = useForecast(district)
   const todayKey = useToday()
@@ -38,6 +40,12 @@ export default function Home() {
   // upcoming/open lead with the corrected onset; once it has passed, lead with
   // the next window that is actually actionable
   const heroDate = status.phase === 'next' ? fmtDate(status.from, lang) : today
+  // The farming year has three moments and the top of this screen follows
+  // them. Sowing advice only while a sowing decision is actually close;
+  // otherwise, the crop already in the ground and this week's weather for it.
+  const sowingNow = status.phase === 'open' || (status.phase === 'upcoming' && status.days <= 21)
+  const inField = cropsInField(SAMPLE_CROPS, district)
+  const active = pickFieldCrop(inField, fieldCrop)
   const heroCount =
     status.phase === 'open'
       ? t('daysLeft', { n: status.days })
@@ -63,7 +71,9 @@ export default function Home() {
         </button>
       </div>
 
-      {advice ? (
+      {!sowingNow && active ? (
+        <FieldCard inField={inField} active={active} onPick={(id) => set({ fieldCrop: id })} />
+      ) : advice ? (
         <AlertCard tone={advice.tone} title={advice.title} body={advice.body} />
       ) : (
         <div className="mt-4 rounded-[26px] bg-chip px-5 py-4">
