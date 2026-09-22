@@ -3,7 +3,8 @@ import { priceFor } from './prices.js'
 import { buildRotation, trajectorySummary } from './rotation.js'
 import { seasonForDate, sowingStatus } from './season.js'
 import { sowingAdvice } from '../data/weather.js'
-import { fmtDate, fmtDoy, fmtWindow, getSeasons } from '../i18n/index.js'
+import { MONTHS_FULL, fmtDate, fmtDoy, fmtWindow, getSeasons } from '../i18n/index.js'
+import { sellAdvice } from './sell.js'
 
 /**
  * Ask RITU — retrieval-grounded question answering in Marathi, Hindi or English.
@@ -63,6 +64,16 @@ const INTENTS = [
       mr: ['नंतर', 'पुढच', 'फेरपालट', 'क्रम', 'जमिनीचा कस', 'नत्र'],
       hi: ['बाद', 'अगली', 'चक्र', 'फेरबदल', 'उर्वरता', 'नाइट्रोजन'],
       en: ['after', 'next season', 'rotation', 'rotate', 'soil', 'nitrogen'],
+    },
+  },
+  {
+    // "when" + "sell" also scores sow_when and price; the phrase match plus a
+    // bonus in ask() makes the specific question win over the general ones
+    id: 'sell_when',
+    kw: {
+      mr: ['कधी विक', 'केव्हा विक', 'विकू की', 'थांबू', 'साठव'],
+      hi: ['कब बेच', 'बेचूँ या', 'रोकूँ', 'रोक कर', 'भंडार'],
+      en: ['when to sell', 'when should i sell', 'when do i sell', 'sell now', 'hold', 'store'],
     },
   },
   {
@@ -165,6 +176,7 @@ export function ask(utterance, ctx) {
     // "after groundnut, what should I sow" reads as both rotation and
     // what_crop. Naming a crop next to an "after" word settles it as rotation.
     if (it.id === 'rotation' && s > 0 && crop) s += 2
+    if (it.id === 'sell_when' && s > 0) s += 2
     if (s > 0 && (!best || s > best.s)) best = { id: it.id, s }
   }
   // naming a crop with no other signal is almost always a price question
@@ -304,6 +316,60 @@ export function ask(utterance, ctx) {
         text: seq,
         detail: trajectorySummary(plan, lang).text,
         source: 'rotation rules',
+      }
+    }
+
+    case 'sell_when': {
+      const c = crop || SAMPLE_CROPS.find((x) => x.id === 'soy')
+      const a = sellAdvice(c, district, priceFor(c.id, district.id))
+      const MF = MONTHS_FULL[lang]
+      if (!a) {
+        return {
+          intent: best.id, crop: c,
+          text: {
+            mr: `${c.name.mr} — पुरेसे जुने भाव उपलब्ध नाहीत.`,
+            hi: `${c.name.hi} — पर्याप्त पुराने भाव उपलब्ध नहीं.`,
+            en: `${c.name.en} — not enough price history to judge.`,
+          }[lang],
+          source: 'Agmarknet',
+        }
+      }
+      const where = a.scope === 'district' ? districtName() : { mr: 'महाराष्ट्र', hi: 'महाराष्ट्र', en: 'Maharashtra' }[lang]
+      const hold = a.verdict === 'hold'
+      const perQtl = a.perQtl ? a.perQtl.toLocaleString('en-IN') : null
+      return {
+        intent: best.id, crop: c,
+        text: hold
+          ? {
+              mr: `${c.name.mr} ${MF[a.best.month]}पर्यंत थांबवा${perQtl ? ` — साधारण ₹${perQtl}/क्विंटल जास्त` : ''}.`,
+              hi: `${c.name.hi} ${MF[a.best.month]} तक रोकें${perQtl ? ` — लगभग ₹${perQtl}/क्विंटल ज़्यादा` : ''}.`,
+              en: `Hold ${c.name.en.toLowerCase()} until ${MF[a.best.month]}${perQtl ? ` — about ₹${perQtl}/qtl more` : ''}.`,
+            }[lang]
+          : {
+              mr: `${c.name.mr} काढणीनंतरच विका.`,
+              hi: `${c.name.hi} कटाई के बाद ही बेचें.`,
+              en: `Sell ${c.name.en.toLowerCase()} at harvest.`,
+            }[lang],
+        detail: !a.best
+          ? null
+          : hold
+            ? {
+                mr: `${where}मध्ये ${a.best.n} पैकी ${a.best.wins} वर्षांत थांबणं फायद्याचं ठरलं, साठवणुकीचा खर्च वजा करून.`,
+                hi: `${where} में ${a.best.n} में से ${a.best.wins} साल रुकना फ़ायदेमंद रहा, भंडारण ख़र्च घटा कर.`,
+                en: `In ${where}, waiting paid in ${a.best.wins} of ${a.best.n} years, after holding costs.`,
+              }[lang]
+            : a.why === 'small'
+              ? {
+                  mr: `${where}मध्ये थांबल्यावर भाव फक्त ${a.best.gain}% वाढला — साठवणुकीचा खर्च त्यापेक्षा जास्त.`,
+                  hi: `${where} में रुकने पर भाव सिर्फ़ ${a.best.gain}% बढ़ा — भंडारण ख़र्च उससे ज़्यादा.`,
+                  en: `In ${where}, waiting raised the price by only ${a.best.gain}% — less than it costs to hold.`,
+                }[lang]
+              : {
+                  mr: `${where}मध्ये थांबल्याचा फायदा फक्त ${a.best.n} पैकी ${a.best.wins} वर्षांत झाला.`,
+                  hi: `${where} में रुकने का फ़ायदा ${a.best.n} में से सिर्फ़ ${a.best.wins} साल हुआ.`,
+                  en: `In ${where}, waiting paid in only ${a.best.wins} of ${a.best.n} years.`,
+                }[lang],
+        source: `Agmarknet, ${a.years} years of prices`,
       }
     }
 
