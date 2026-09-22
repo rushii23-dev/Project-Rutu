@@ -1,4 +1,6 @@
+import { useNavigate } from 'react-router-dom'
 import { useStore } from '../lib/store.jsx'
+import { pct, soilFor } from '../lib/soil.js'
 import { getSeasons } from '../i18n/index.js'
 import {
   buildRotation,
@@ -15,7 +17,9 @@ import {
  * inherently about the crop already on screen, so it costs the farmer no extra tap.
  */
 export default function Rotation({ crop }) {
-  const { t, lang } = useStore()
+  const { t, lang, districtId, districtName } = useStore()
+  const nav = useNavigate()
+  const soil = soilFor(districtId)
   const plan = buildRotation(crop)
   const traj = soilTrajectory(plan)
   const summary = trajectorySummary(plan, lang)
@@ -36,6 +40,25 @@ export default function Rotation({ crop }) {
         ) : null}
       </div>
       <p className="mx-1 mb-3 text-[13px] text-faint">{t('rotationSub')}</p>
+
+      {/* the starting point is measured now: the district's Soil Health Card
+          odds. Still not his field — the bars below stay relative. */}
+      {soil ? (
+        <button
+          onClick={() => nav('/soil')}
+          className="mb-2.5 flex w-full items-start gap-3 rounded-3xl bg-warn-l px-5 py-4 text-left"
+        >
+          <span className="num flex-none text-[26px] font-bold leading-none text-warn">{pct(soil.n[0])}%</span>
+          <span className="text-[15px] leading-snug text-warn-d">
+            {{
+              mr: `${districtName()}मधील ${soil.samples.toLocaleString('en-IN')} तपासलेल्या शेतांत नत्र कमी. म्हणून या फेरपालटीत कडधान्य आहे.`,
+              hi: `${districtName()} के ${soil.samples.toLocaleString('en-IN')} जाँचे गए खेतों में नाइट्रोजन कम. इसलिए इस फ़सल-चक्र में दलहन है.`,
+              en: `of ${soil.samples.toLocaleString('en-IN')} fields tested in ${districtName()} are low in nitrogen. That is why this plan carries a legume.`,
+            }[lang]}{' '}
+            <b className="font-semibold">→</b>
+          </span>
+        </button>
+      ) : null}
 
       <div className="flex flex-col gap-2.5">
         {plan.map((step, i) => {
