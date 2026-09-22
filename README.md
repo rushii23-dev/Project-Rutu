@@ -8,6 +8,8 @@
 
 `मौसम बदल गया. आता माहितीही बदलेल.`
 
+**Live: [rutu-one.vercel.app](https://rutu-one.vercel.app)**
+
 [![Licence: MIT](https://img.shields.io/badge/licence-MIT-2E6B3F.svg)](LICENSE)
 [![Data: IMD Pune](https://img.shields.io/badge/rainfall-IMD%20Pune%201985--2025-17150F.svg)](https://www.imdpune.gov.in/cmpg/Griddata/Rainfall_25_NetCDF.html)
 [![Forecast: Open-Meteo](https://img.shields.io/badge/forecast-Open--Meteo-5B7C86.svg)](https://open-meteo.com)
