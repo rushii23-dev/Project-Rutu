@@ -13,6 +13,9 @@ const DEFAULTS = {
   village: '',
   districtId: 'Nashik',
   acres: 3,
+  // the crop the farmer says is in his field; null = let the app pick the
+  // likeliest one from the season and the district's corrected calendar
+  fieldCrop: null,
 }
 
 function load() {
