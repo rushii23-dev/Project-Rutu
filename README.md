@@ -33,6 +33,8 @@ Onset across Maharashtra spans **38 days**, from 3 June in Ratnagiri to 11 July 
 
 **In 34 of 36 districts we found no significant shift, and the app says so** rather than drawing a trend line that isn't there.
 
+**Sowing on the old date costs a Nashik farmer about ₹15,000 on 3 acres of soybean.** That is 14 days × the loss rate measured in a published field trial (14.86 kg/ha per day of delay, Dr. PDKV Akola) × the latest Agmarknet price. No sample figures go into it.
+
 ## What it does
 
 **Farmer view** (`/`) — phone-sized, Marathi first, everything in rupees.
