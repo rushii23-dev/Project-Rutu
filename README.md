@@ -1,6 +1,6 @@
 <div align="center">
 
-# ऋतु · RITU
+# ऋतु · RUTU
 
 ### The calendar, corrected.
 
