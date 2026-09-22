@@ -98,6 +98,9 @@ Deploys to Vercel as-is: import the repo, no settings to change. `vercel.json` r
 | [Agmarknet](https://data.gov.in/resource/current-daily-price-various-commodities-various-markets-mandi) | daily mandi prices, refreshed twice a day by CI | free |
 | [NASA GIBS](https://gibs.earthdata.nasa.gov) | MODIS NDVI imagery | no |
 | [PlantVillage](https://github.com/spMohanty/PlantVillage-Dataset) | leaf disease training images | no |
+| [Agmarknet history](https://data.gov.in/resource/variety-wise-daily-market-prices-data-commodity) | 1.3M daily market prices, 2015–2026, for *when to sell* | free |
+| [Soil Health Card](https://soilhealth.dac.gov.in/nutrient-dashboard) | district nutrient status, 2023-24 to 2025-26 | no |
+| Nath et al. 2017, *J. Appl. Nat. Sci.* 9(1):544–550 | soybean yield lost per day of late sowing | — |
 
 Total cost: **₹0**.
 
