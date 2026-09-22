@@ -202,7 +202,7 @@ state = {c: {"modal": round(statistics.median(sorted(v))), "markets": len(v)}
 # data with that.
 if len(rows) < 10:
     log("")
-    log(f"ABORTED: only {len(rows)} rows returned across {len(names)} districts.")
+    log(f"ABORTED: only {len(rows)} rows returned across {len(seen_districts)} districts.")
     log("  That is the signature of a rate-limited key, not an empty market day.")
     log(f"  {OUT} left untouched. Try again later.")
     raise SystemExit(1)
