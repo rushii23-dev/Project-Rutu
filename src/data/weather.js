@@ -25,13 +25,13 @@ export function decodeWeather(code) {
 }
 
 const SAMPLE_SHAPE = [
-  { code: 0, temp: 33, mm: 0 },
-  { code: 0, temp: 34, mm: 0 },
-  { code: 1, temp: 33, mm: 0 },
-  { code: 2, temp: 32, mm: 0 },
-  { code: 3, temp: 31, mm: 0 },
-  { code: 61, temp: 29, mm: 18 },
-  { code: 63, temp: 28, mm: 34 },
+  { code: 0, temp: 33, tmin: 22, gust: 18, mm: 0 },
+  { code: 0, temp: 34, tmin: 22, gust: 20, mm: 0 },
+  { code: 1, temp: 33, tmin: 23, gust: 16, mm: 0 },
+  { code: 2, temp: 32, tmin: 23, gust: 22, mm: 0 },
+  { code: 3, temp: 31, tmin: 23, gust: 25, mm: 0 },
+  { code: 61, temp: 29, tmin: 22, gust: 30, mm: 18 },
+  { code: 63, temp: 28, tmin: 21, gust: 34, mm: 34 },
 ]
 
 /** Sample week is dated from today, so the offline fallback never shows a
