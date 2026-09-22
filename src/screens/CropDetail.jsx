@@ -1,4 +1,5 @@
-import { useNavigate, useParams } from 'react-router-dom'
+import { useEffect } from 'react'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useStore } from '../lib/store.jsx'
 import { fmtWindow, getSeasons, getWaterLevels, rupees } from '../i18n/index.js'
 import { cropById } from '../data/crops.js'
@@ -12,6 +13,15 @@ export default function CropDetail() {
   const { t, lang, acres, districtId, district } = useStore()
   const { id } = useParams()
   const nav = useNavigate()
+  const { hash } = useLocation()
+
+  // links from Home ("when to sell") and Soil ("see the rotation") land on a
+  // section, not the top of a long page
+  useEffect(() => {
+    if (!hash) return
+    const el = document.getElementById(hash.slice(1))
+    if (el) requestAnimationFrame(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }))
+  }, [hash, id])
 
   const c = cropById(id)
   const seasonNames = getSeasons(lang)
