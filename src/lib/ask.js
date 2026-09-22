@@ -450,16 +450,16 @@ export function ask(utterance, ctx) {
 }
 
 const UNKNOWN = {
-  mr: 'हे समजलं नाही. पेरणी, भाव, पाऊस किंवा पीक याबद्दल विचारा.',
-  hi: 'यह समझ नहीं आया. बुवाई, भाव, बारिश या फ़सल के बारे में पूछें.',
-  en: "I did not understand. Ask about sowing, price, rain or crops.",
+  mr: 'हे समजलं नाही. पेरणी, भाव, विक्री, पाऊस, माती किंवा पीक याबद्दल विचारा.',
+  hi: 'यह समझ नहीं आया. बुवाई, भाव, बिक्री, बारिश, मिट्टी या फ़सल के बारे में पूछें.',
+  en: 'I did not understand. Ask about sowing, prices, selling, rain, soil or crops.',
 }
 
 /** Example prompts, shown as tappable chips so the farmer knows what to say. */
 export const EXAMPLES = {
-  mr: ['पेरणी कधी करावी?', 'कांद्याचा भाव काय?', 'पाऊस पडेल का?', 'सोयाबीननंतर काय?'],
-  hi: ['बुवाई कब करें?', 'प्याज़ का भाव क्या है?', 'क्या बारिश होगी?', 'सोयाबीन के बाद क्या?'],
-  en: ['When should I sow?', 'What is the onion price?', 'Will it rain?', 'What after soybean?'],
+  mr: ['सोयाबीन कधी विकू?', 'माझी माती कशी आहे?', 'पेरणी कधी करावी?', 'कांद्याचा भाव काय?', 'पाऊस पडेल का?', 'सोयाबीननंतर काय?'],
+  hi: ['सोयाबीन कब बेचूँ?', 'मेरी मिट्टी कैसी है?', 'बुवाई कब करें?', 'प्याज़ का भाव क्या है?', 'क्या बारिश होगी?', 'सोयाबीन के बाद क्या?'],
+  en: ['When should I sell soybean?', 'How is my soil?', 'When should I sow?', 'What is the onion price?', 'Will it rain?', 'What after soybean?'],
 }
 
 export const SPEECH_LOCALE = { mr: 'mr-IN', hi: 'hi-IN', en: 'en-IN' }
