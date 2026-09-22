@@ -12,7 +12,9 @@ import { SAMPLE_CROPS, SEASON_KEYS } from '../data/crops.js'
  * organic-carbon percentage — we have no Soil Health Card reading to anchor one
  * to, and inventing a baseline would be fabrication.
  *
- * TODO: once Soil Health Card N-P-K lands, anchor this to a real starting SOC.
+ * The district's Soil Health Card odds (lib/soil.js) are shown alongside, as
+ * the reason the plan leans on legumes. They are shares of tested fields, not
+ * this farmer's reading, so they set the direction here, not a starting number.
  */
 
 
