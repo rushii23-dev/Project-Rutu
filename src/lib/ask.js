@@ -321,12 +321,15 @@ export function ask(utterance, ctx) {
         }
       }
       const days = Math.abs(Math.round(o.shiftDays))
+      // direction from the sign, never a hardcoded word — the same fix the home
+      // screen got; a district trending later must not be told "earlier"
+      const early = o.shiftDays < 0
       return {
         intent: best.id, crop,
         text: {
-          mr: `मान्सून ${days} दिवस लवकर येतो — पूर्वी ${fmtDoy(o.fatherDoy, lang)}, आता ${fmtDoy(o.todayDoy, lang)}.`,
-          hi: `मानसून ${days} दिन जल्दी आता है — पहले ${fmtDoy(o.fatherDoy, lang)}, अब ${fmtDoy(o.todayDoy, lang)}.`,
-          en: `The monsoon arrives ${days} days earlier — was ${fmtDoy(o.fatherDoy, lang)}, now ${fmtDoy(o.todayDoy, lang)}.`,
+          mr: `मान्सून ${days} दिवस ${early ? 'लवकर' : 'उशिरा'} येतो — पूर्वी ${fmtDoy(o.fatherDoy, lang)}, आता ${fmtDoy(o.todayDoy, lang)}.`,
+          hi: `मानसून ${days} दिन ${early ? 'जल्दी' : 'देर से'} आता है — पहले ${fmtDoy(o.fatherDoy, lang)}, अब ${fmtDoy(o.todayDoy, lang)}.`,
+          en: `The monsoon arrives ${days} days ${early ? 'earlier' : 'later'} — was ${fmtDoy(o.fatherDoy, lang)}, now ${fmtDoy(o.todayDoy, lang)}.`,
         }[lang],
         detail: {
           mr: `${o.nYears} वर्षांच्या IMD नोंदींवरून, p = ${o.p}.`,
