@@ -40,12 +40,16 @@ Onset across Maharashtra spans **38 days**, from 3 June in Ratnagiri to 11 July 
 **Farmer view** (`/`) — phone-sized, Marathi first, everything in rupees.
 
 - **Corrected sowing window**, counted from your district's own onset — and a *Why this date* screen explaining how it was derived, and what we do **not** claim
+- **What the old date costs, in rupees** — from a published field trial and the day's mandi price, with the trial's measured yields on screen
+- **The farming year, not just sowing** — once the crop is in, the home screen follows it: estimated stage, and this week's forecast turned into field warnings (rain at harvest, heavy rain, heat at flowering, frost, a dry week, whether to spray today)
+- **When to sell** — 11 years of real Agmarknet prices per district: sell at harvest, or hold, and in how many years holding actually paid
+- **District soil** — Soil Health Card results for 926,596 field tests across 34 districts (2025-26 cycle), shown as the odds for *your* field, with what to do about them
 - **Which crop, and why not the others** — every crop of the season ranked side by side, each one given its own reason for losing, priced in rupees, with the ranking model printed on the screen
 - **Climate-resilience score** per crop, from that district's rainfall record
 - **Regenerative rotation** — three seasons, with the soil-nitrogen trajectory
 - **Leaf disease diagnosis** from a photo, run on the phone, never uploaded
 - Live weather with sowing advice · real mandi prices · satellite vegetation
-- **Ask** — typed questions in Marathi, Hindi or English, answered from data we hold, never generated
+- **Ask** — typed questions in Marathi, Hindi or English (sowing, selling, soil, prices, rain), answered from data we hold, never generated
 - Installs as a PWA and works offline
 
 **State view** (`/policy`) — laptop-sized. All 36 districts mapped by onset shift and significance, plus the federation model: *models cross borders, farmer records do not.*
