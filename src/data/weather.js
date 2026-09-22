@@ -60,7 +60,9 @@ export const SAMPLE_CURRENT = { temp: 33, humidity: 41, wind: 12, code: 0, mm: 0
 export async function fetchForecast(lat, lon) {
   const url =
     `${ENDPOINT}?latitude=${lat}&longitude=${lon}` +
-    '&daily=weather_code,temperature_2m_max,precipitation_sum' +
+    // min temperature and gusts feed the in-field warnings (frost, lodging,
+    // spray drift) in lib/fieldRisk.js
+    '&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,wind_gusts_10m_max' +
     '&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code' +
     '&timezone=Asia%2FKolkata&forecast_days=7'
 
@@ -80,6 +82,8 @@ export async function fetchForecast(lat, lon) {
         dow: (dt.getDay() + 6) % 7, // 0 = Monday
         code: j.daily.weather_code[i] ?? 0,
         temp: Math.round(j.daily.temperature_2m_max[i] ?? 0),
+        tmin: Math.round(j.daily.temperature_2m_min?.[i] ?? 0),
+        gust: Math.round(j.daily.wind_gusts_10m_max?.[i] ?? 0),
         // one decimal, not a whole number. Rounding 1.5 mm up to 2 and 0.4 mm
         // down to 0 both misreport the forecast, and the thresholds below read
         // this value — a drizzle day should not be rounded into a dry one.
