@@ -124,6 +124,6 @@ The export is the **method**, not the app. Any region with a rainfall archive an
 
 <div align="center">
 
-**RITU — the calendar, corrected.**
+**RUTU — the calendar, corrected.**
 
 </div>
