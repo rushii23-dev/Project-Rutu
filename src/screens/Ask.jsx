@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useStore } from '../lib/store.jsx'
 import { useForecast } from '../lib/useForecast.js'
+import { useToday } from '../lib/useToday.js'
 import { ask, EXAMPLES } from '../lib/ask.js'
 import { Card, RoundIconButton } from '../components/ui.jsx'
 
@@ -19,8 +20,9 @@ import { Card, RoundIconButton } from '../components/ui.jsx'
  * input-agnostic, so a microphone can be reattached without touching it.
  */
 export default function Ask() {
-  const { t, lang, district, districtName, acres } = useStore()
+  const { t, lang, district, districtName, acres, fieldCrop } = useStore()
   const forecast = useForecast(district)
+  const todayKey = useToday()
   const nav = useNavigate()
 
   const [heard, setHeard] = useState('')
@@ -29,7 +31,12 @@ export default function Ask() {
 
   function respond(text) {
     setHeard(text)
-    setAnswer(ask(text, { lang, district, districtName, acres, week: forecast.week, isSample: forecast.isSample }))
+    setAnswer(
+      ask(text, {
+        lang, district, districtName, acres, fieldCrop, todayKey,
+        week: forecast.week, isSample: forecast.isSample,
+      })
+    )
   }
 
   return (
