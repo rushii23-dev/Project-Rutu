@@ -2,7 +2,7 @@ import { SAMPLE_CROPS } from '../data/crops.js'
 import { priceFor } from './prices.js'
 import { buildRotation, trajectorySummary } from './rotation.js'
 import { seasonForDate, sowingStatus } from './season.js'
-import { sowingAdvice } from '../data/weather.js'
+import { weekAdvice } from './field.js'
 import { MONTHS_FULL, fmtDate, fmtDoy, fmtWindow, getSeasons } from '../i18n/index.js'
 import { sellAdvice } from './sell.js'
 import { pct, soilFor } from './soil.js'
@@ -173,7 +173,7 @@ function findCrop(text) {
  * numbers came from so the UI can show provenance rather than assert.
  */
 export function ask(utterance, ctx) {
-  const { lang, district, districtName, week, isSample } = ctx
+  const { lang, district, districtName, week, isSample, fieldCrop, todayKey } = ctx
   const text = (utterance || '').toLowerCase().trim()
   if (!text) return null
 
@@ -291,10 +291,11 @@ export function ask(utterance, ctx) {
           source: null,
         }
       }
-      // sowingAdvice already states the millimetres — do not restate them here
-      const a = sowingAdvice(week, lang)
+      // the same advice the Weather screen gives, so the two never disagree;
+      // it already states the millimetres — do not restate them here
+      const a = weekAdvice({ crops: SAMPLE_CROPS, district, week, lang, todayKey, fieldCrop })
       return {
-        intent: best.id, crop,
+        intent: best.id, crop: a.crop || crop,
         text: a.title,
         detail: a.body,
         source: 'Open-Meteo (live)',
