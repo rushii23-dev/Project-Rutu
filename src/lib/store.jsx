@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react'
-import { makeT } from '../i18n/index.js'
+import { LANGS, makeT } from '../i18n/index.js'
 import districtData from '../data/districts.json'
 
 const KEY = 'ritu.v1'
@@ -18,11 +18,34 @@ const DEFAULTS = {
   fieldCrop: null,
 }
 
+/**
+ * A saved profile is untrusted input: it can come from an older build, a
+ * half-written save or a devtools edit. Spreading it in unchecked meant one bad
+ * field blanked the whole app — an unknown `lang` threw at the first month-name
+ * lookup — and with the app blank there was no Profile screen left to reset
+ * from. So every field is checked on the way in and falls back to its default.
+ */
+function clean(saved) {
+  const s = { ...DEFAULTS }
+  if (!saved || typeof saved !== 'object') return s
+  if (LANGS.some((l) => l.code === saved.lang)) s.lang = saved.lang
+  s.onboarded = saved.onboarded === true
+  if (typeof saved.name === 'string') s.name = saved.name.slice(0, 60)
+  if (typeof saved.village === 'string') s.village = saved.village.slice(0, 60)
+  if (districtData.districts.some((d) => d.id === saved.districtId)) s.districtId = saved.districtId
+  // same bounds AcreInput enforces when the farmer types
+  if (typeof saved.acres === 'number' && Number.isFinite(saved.acres) && saved.acres > 0) {
+    s.acres = Math.min(500, Math.max(0.5, saved.acres))
+  }
+  if (typeof saved.fieldCrop === 'string') s.fieldCrop = saved.fieldCrop
+  return s
+}
+
 function load() {
   try {
     const raw = localStorage.getItem(KEY)
     if (!raw) return DEFAULTS
-    return { ...DEFAULTS, ...JSON.parse(raw) }
+    return clean(JSON.parse(raw))
   } catch {
     return DEFAULTS
   }
