@@ -1,7 +1,16 @@
+import { readFileSync } from 'node:fs'
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
+
+// `npm run preview` sends the same security headers Vercel does, read from
+// vercel.json, so a new script or API host that the CSP would block in
+// production fails here first instead of on stage.
+const vercel = JSON.parse(readFileSync(new URL('./vercel.json', import.meta.url), 'utf8'))
+const securityHeaders = Object.fromEntries(
+  vercel.headers.find((h) => h.source === '/(.*)').headers.map((h) => [h.key, h.value]),
+)
 
 export default defineConfig({
   plugins: [
@@ -79,4 +88,5 @@ export default defineConfig({
     }),
   ],
   server: { host: true, port: 5173 },
+  preview: { headers: securityHeaders },
 })
