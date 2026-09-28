@@ -1,5 +1,6 @@
 import { SAMPLE_CROPS } from '../data/crops.js'
 import { priceFor } from './prices.js'
+import { isPriceStale } from './priceAge.js'
 import { buildRotation, trajectorySummary } from './rotation.js'
 import { seasonForDate, sowingStatus } from './season.js'
 import { weekAdvice } from './field.js'
@@ -253,12 +254,16 @@ export function ask(utterance, ctx) {
           source: 'Agmarknet',
         }
       }
+      // an old price is answered with its date, never as today's
+      const when = isPriceStale(p) ? p.date : null
       return {
         intent: best.id, crop: c,
         text: {
-          mr: `${c.name.mr} आज ₹${p.value.toLocaleString('en-IN')} प्रति क्विंटल.`,
-          hi: `${c.name.hi} आज ₹${p.value.toLocaleString('en-IN')} प्रति क्विंटल.`,
-          en: `${c.name.en} is ₹${p.value.toLocaleString('en-IN')} per quintal today.`,
+          mr: `${c.name.mr} ${when ? when + ' रोजी' : 'आज'} ₹${p.value.toLocaleString('en-IN')} प्रति क्विंटल.`,
+          hi: `${c.name.hi} ${when ? when + ' को' : 'आज'} ₹${p.value.toLocaleString('en-IN')} प्रति क्विंटल.`,
+          en: when
+            ? `${c.name.en} was ₹${p.value.toLocaleString('en-IN')} per quintal on ${when}.`
+            : `${c.name.en} is ₹${p.value.toLocaleString('en-IN')} per quintal today.`,
         }[lang],
         detail: p.market
           ? {
