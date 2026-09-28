@@ -48,8 +48,13 @@ def rolling_dates(today, days=365, lag=16):
 # a rolling cropping year, so a weekly run always shows the latest one
 DATES = rolling_dates(datetime.date.today())
 
-# the two frames the interface shows side by side
-HERO = {"dry": "2025-05-09", "peak": "2025-10-16"}
+# The two frames shown side by side are CHOSEN FROM THE DATA: the barest clear
+# reading before the monsoon and the greenest after it. Hand-picked dates went
+# stale, and once showed a 9 May image beside 25 May's greenness figure.
+# The dry frame is labelled "before sowing", so it is never taken from June:
+# in an early-onset district June can already be sown.
+DRY_MONTHS = (3, 4, 5)
+PEAK_MONTHS = (8, 9, 10, 11, 12)
 
 
 def fetch(date, width, height, path):
@@ -124,6 +129,19 @@ for d in DATES:
 if os.path.exists(tmp):
     os.remove(tmp)
 
+valid = [s for s in series if s["reliable"] and s["index"] is not None]
+
+
+def pick(months, best):
+    """The extreme clear reading inside the given months, else across the year."""
+    inside = [s for s in valid if int(s["date"][5:7]) in months]
+    return best(inside or valid, key=lambda s: s["index"])
+
+
+lo = pick(DRY_MONTHS, min)
+hi = pick(PEAK_MONTHS, max)
+HERO = {"dry": lo["date"], "peak": hi["date"]}
+
 # hero frames, larger and optimised for shipping
 for key, date in HERO.items():
     path = os.path.join(IMG_DIR, f"nashik_{key}.png")
@@ -131,10 +149,6 @@ for key, date in HERO.items():
     im = Image.open(path).convert("P", palette=Image.ADAPTIVE, colors=64)
     im.save(path, optimize=True)
     print(f"  hero {key:5} {date}  {os.path.getsize(path)//1024} KB")
-
-valid = [s for s in series if s["reliable"] and s["index"] is not None]
-lo = min(valid, key=lambda s: s["index"])
-hi = max(valid, key=lambda s: s["index"])
 
 payload = {
     "source": {
