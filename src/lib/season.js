@@ -183,6 +183,22 @@ export function sowingStatus(crops, district, now = new Date()) {
   }
 }
 
+/** How far ahead of a rain-triggered window the forecast becomes sowing advice. */
+export const SOWING_LEAD_DAYS = 21
+
+/**
+ * Should this week's forecast be read as a SOWING instruction?
+ *
+ * Only when the window that matters is rain-triggered (kharif, basis 'onset')
+ * and is open or near. Rabi sows on residual moisture and summer on well water,
+ * so "wait for 50 mm" in November is wrong advice by this file's own reasoning;
+ * and in September there is nothing to sow at all. Home, Weather and Ask all
+ * ask this one question so they cannot disagree about it.
+ */
+export function rainDecidesSowing(status) {
+  return status.basis === 'onset' && (status.phase === 'open' || status.days <= SOWING_LEAD_DAYS)
+}
+
 /**
  * Where TODAY sits relative to one crop's own sowing window.
  *
