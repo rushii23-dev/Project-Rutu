@@ -169,12 +169,26 @@ function findCrop(text) {
 }
 
 /**
+ * Source lines in the farmer's language. Only proper names — IMD, Agmarknet,
+ * Open-Meteo — stay in Latin script; they are what he would search for.
+ */
+const WORDS = {
+  calendar: { mr: 'पीक दिनदर्शिका', hi: 'फ़सल कैलेंडर', en: 'crop calendar' },
+  live: { mr: 'थेट', hi: 'लाइव', en: 'live' },
+  rotation: { mr: 'फेरपालटीचे नियम', hi: 'फ़सल-चक्र के नियम', en: 'rotation rules' },
+  shc: { mr: 'मृदा आरोग्य पत्रिका', hi: 'मृदा स्वास्थ्य कार्ड', en: 'Soil Health Card' },
+  tests: { mr: 'चाचण्या', hi: 'जाँच', en: 'tests' },
+  yearsOfPrices: { mr: 'वर्षांचे भाव', hi: 'साल के भाव', en: 'years of prices' },
+}
+
+/**
  * Answer a question.
  * Returns { intent, text, detail, crop, source } — `source` names where the
  * numbers came from so the UI can show provenance rather than assert.
  */
 export function ask(utterance, ctx) {
   const { lang, district, districtName, week, isSample, fieldCrop, todayKey } = ctx
+  const w = (k) => WORDS[k][lang]
   const text = (utterance || '').toLowerCase().trim()
   if (!text) return null
 
@@ -220,7 +234,7 @@ export function ask(utterance, ctx) {
               ? `The sowing window for ${named} is open now — ${win}. ${st.days} days left.`
               : `The sowing window is open now — ${win}. ${st.days} days left.`,
           }[lang],
-          source: 'IMD + crop calendar',
+          source: `IMD + ${w('calendar')}`,
         }
       }
       return {
@@ -236,7 +250,7 @@ export function ask(utterance, ctx) {
             ? `Next ${named} sowing from ${when} — ${seasons[st.season]} season, in ${st.days} days.`
             : `Next sowing from ${when} — ${seasons[st.season]} season, in ${st.days} days.`,
         }[lang],
-        source: 'IMD + crop calendar',
+        source: `IMD + ${w('calendar')}`,
       }
     }
 
@@ -303,7 +317,7 @@ export function ask(utterance, ctx) {
         intent: best.id, crop: a.crop || crop,
         text: a.title,
         detail: a.body,
-        source: 'Open-Meteo (live)',
+        source: `Open-Meteo (${w('live')})`,
       }
     }
 
@@ -318,7 +332,7 @@ export function ask(utterance, ctx) {
           en: `For the ${seasons[season]} season: ${names}.`,
         }[lang],
         detail: opts[0] ? opts[0].reason[lang] : null,
-        source: 'crop calendar',
+        source: w('calendar'),
       }
     }
 
@@ -330,7 +344,7 @@ export function ask(utterance, ctx) {
         intent: best.id, crop: c,
         text: seq,
         detail: trajectorySummary(plan, lang).text,
-        source: 'rotation rules',
+        source: w('rotation'),
       }
     }
 
@@ -384,7 +398,7 @@ export function ask(utterance, ctx) {
                   hi: `${where} में रुकने का फ़ायदा ${a.best.n} में से सिर्फ़ ${a.best.wins} साल हुआ.`,
                   en: `In ${where}, waiting paid in only ${a.best.wins} of ${a.best.n} years.`,
                 }[lang],
-        source: `Agmarknet, ${a.years} years of prices`,
+        source: `Agmarknet, ${a.years} ${w('yearsOfPrices')}`,
       }
     }
 
@@ -398,7 +412,7 @@ export function ask(utterance, ctx) {
             hi: `${districtName()} के लिए मिट्टी जाँच उपलब्ध नहीं.`,
             en: `There are no soil tests on record for ${districtName()}.`,
           }[lang],
-          source: 'Soil Health Card',
+          source: w('shc'),
         }
       }
       return {
@@ -413,7 +427,7 @@ export function ask(utterance, ctx) {
           hi: 'फ़सल-चक्र में दलहन रखें. अपने खेत का कार्ड मुफ़्त बनवाएँ — यह ज़िले का अनुमान है, आपके खेत का नहीं.',
           en: 'Keep a legume in your rotation, and get your own field tested free — these are the district odds, not your field.',
         }[lang],
-        source: `Soil Health Card ${sl.cycle}, ${sl.samples.toLocaleString('en-IN')} tests`,
+        source: `${w('shc')} ${sl.cycle}, ${sl.samples.toLocaleString('en-IN')} ${w('tests')}`,
       }
     }
 
