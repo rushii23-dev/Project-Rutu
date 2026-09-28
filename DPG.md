@@ -66,7 +66,7 @@ The federation design is explicit about this boundary: **models and methods cros
 
 API credentials never enter the client bundle. The data scripts read the one key they need from a git-ignored `.env.local` on a developer machine, or from a repository secret in CI, and never log it.
 
-The deployment sends a strict Content-Security-Policy that allows only the app itself, the Open-Meteo forecast and Google Fonts, and forbids the page from being framed by another site. It also sends `X-Content-Type-Options: nosniff`, a strict referrer policy and a permissions policy. `npm run preview` sends the same headers, so a change that would break under them fails locally first.
+The deployment sends a strict Content-Security-Policy that allows only the app itself and the Open-Meteo forecast, and forbids the page from being framed by another site. It also sends `X-Content-Type-Options: nosniff`, a strict referrer policy and a permissions policy. `npm run preview` sends the same headers, so a change that would break under them fails locally first.
 
 ### 8. Standards and best practices
 
