@@ -110,7 +110,9 @@ def fetch_state(limit=5000):
                 payload = json.loads(r.read())
                 return payload.get("records", [])
         except Exception as e:
-            log(f"  attempt {attempt+1}/3 failed: {type(e).__name__}")
+            # the status tells an outage (502) from a bad key (403) or a rate
+            # limit (429). Never log str(e) or the URL: the key is in the query.
+            log(f"  attempt {attempt+1}/3 failed: {type(e).__name__} {getattr(e, 'code', '')}")
             time.sleep(4 * (attempt + 1))
     return []
 
