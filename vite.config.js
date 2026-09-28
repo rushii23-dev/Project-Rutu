@@ -12,10 +12,31 @@ const securityHeaders = Object.fromEntries(
   vercel.headers.find((h) => h.source === '/(.*)').headers.map((h) => [h.key, h.value]),
 )
 
+// The price file is imported into the bundle (offline from the first open)
+// AND served at a stable URL, which the app re-fetches while it runs — so an
+// installed app picks up the GitHub Action's latest prices without an update.
+// One source file, src/data/prices.json, feeds both.
+const PRICES = new URL('./src/data/prices.json', import.meta.url)
+function livePrices() {
+  return {
+    name: 'ritu-live-prices',
+    configureServer(server) {
+      server.middlewares.use('/data/prices.json', (_req, res) => {
+        res.setHeader('Content-Type', 'application/json')
+        res.end(readFileSync(PRICES))
+      })
+    },
+    generateBundle() {
+      this.emitFile({ type: 'asset', fileName: 'data/prices.json', source: readFileSync(PRICES) })
+    },
+  }
+}
+
 export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
+    livePrices(),
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['satellite/*.png'],
