@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 import { LANGS, makeT } from '../i18n/index.js'
 import districtData from '../data/districts.json'
+import { refreshPrices } from './prices.js'
 
 const KEY = 'ritu.v1'
 
@@ -53,8 +54,13 @@ function load() {
 
 const Ctx = createContext(null)
 
+/** How often an open app re-checks the deployed price file. */
+const PRICE_CHECK_MS = 30 * 60 * 1000
+
 export function StoreProvider({ children }) {
   const [state, setState] = useState(load)
+  // bumped when live data changes, so every screen reading it re-renders
+  const [dataVersion, setDataVersion] = useState(0)
 
   useEffect(() => {
     try {
@@ -64,6 +70,28 @@ export function StoreProvider({ children }) {
     }
   }, [state])
 
+  // Keep mandi prices current while the app is open: on start, every half
+  // hour, and whenever the farmer comes back to the app or the signal returns.
+  // A hidden tab does not poll — it catches up the moment it is looked at.
+  useEffect(() => {
+    let last = 0
+    const check = async () => {
+      if (document.visibilityState === 'hidden') return
+      if (Date.now() - last < 60 * 1000) return // focus + visibility fire together
+      last = Date.now()
+      if (await refreshPrices()) setDataVersion((v) => v + 1)
+    }
+    check()
+    const timer = setInterval(check, PRICE_CHECK_MS)
+    document.addEventListener('visibilitychange', check)
+    window.addEventListener('online', check)
+    return () => {
+      clearInterval(timer)
+      document.removeEventListener('visibilitychange', check)
+      window.removeEventListener('online', check)
+    }
+  }, [])
+
   const value = useMemo(() => {
     const district =
       districtData.districts.find((d) => d.id === state.districtId) ||
@@ -71,6 +99,7 @@ export function StoreProvider({ children }) {
 
     return {
       ...state,
+      dataVersion,
       district,
       districts: districtData.districts,
       meta: { source: districtData.source, method: districtData.method },
@@ -80,7 +109,7 @@ export function StoreProvider({ children }) {
       set: (patch) => setState((s) => ({ ...s, ...patch })),
       reset: () => setState(DEFAULTS),
     }
-  }, [state])
+  }, [state, dataVersion])
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>
 }
