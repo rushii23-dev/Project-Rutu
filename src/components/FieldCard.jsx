@@ -86,11 +86,15 @@ export default function FieldCard({ inField, active, onPick }) {
           <div className="num text-right text-[14px] font-medium text-muted">
             {st.phase === 'sold'
               ? L({ mr: 'कापणी झाली', hi: 'कटाई हो चुकी', en: 'Harvested' })
-              : L({
-                  mr: `दिवस ${Math.max(0, st.day)} / ~${st.duration}`,
-                  hi: `दिन ${Math.max(0, st.day)} / ~${st.duration}`,
-                  en: `Day ${Math.max(0, st.day)} of ~${st.duration}`,
-                })}
+              : st.day >= st.duration
+                ? // past its expected length the count reads like an error
+                  // ("Day 109 of ~100"); what the farmer needs is the fact
+                  L({ mr: 'कापणीला तयार', hi: 'कटाई के लिए तैयार', en: 'Ready to harvest' })
+                : L({
+                    mr: `दिवस ${Math.max(0, st.day)} / ~${st.duration}`,
+                    hi: `दिन ${Math.max(0, st.day)} / ~${st.duration}`,
+                    en: `Day ${Math.max(0, st.day)} of ~${st.duration}`,
+                  })}
           </div>
         </div>
 
