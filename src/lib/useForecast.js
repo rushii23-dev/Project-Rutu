@@ -21,9 +21,22 @@ const loading = (districtId) => ({
   districtId, week: sampleWeek(), current: SAMPLE_CURRENT, isSample: true, loading: true,
 })
 
+/**
+ * Fresh = fetched in the last 15 minutes AND actually live. The sample week, or
+ * an hours-old copy the service worker answered with offline, is never fresh —
+ * so the moment the signal returns, the next tick fetches instead of waiting
+ * out the timer.
+ */
+function fresh(hit) {
+  if (!hit || hit.data.isSample) return false
+  if (Date.now() - hit.at >= REFRESH_MS) return false
+  const age = ageHours(hit.data.fetchedAt)
+  return age === null || age < 0.5
+}
+
 function refresh(district, key) {
   const hit = cache.get(key)
-  if (hit && Date.now() - hit.at < REFRESH_MS) return
+  if (fresh(hit)) return
   if (inflight.has(key)) return
   inflight.add(key)
   fetchForecast(district.lat, district.lon).then((res) => {
