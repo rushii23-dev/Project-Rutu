@@ -13,7 +13,7 @@ instead of quietly plotting them.
 
 Usage:  python scripts/fetch_satellite_ndvi.py
 """
-import datetime, json, os, sys, urllib.request, urllib.parse
+import datetime, json, os, shutil, sys, urllib.request, urllib.parse
 import numpy as np
 from PIL import Image
 
@@ -149,12 +149,15 @@ lo = pick(DRY_MONTHS, min)
 hi = pick(PEAK_MONTHS, max)
 HERO = {"dry": lo["date"], "peak": hi["date"]}
 
-# hero frames, larger and optimised for shipping
+# hero frames, larger and optimised for shipping. Written to a temporary name
+# first, so a failed download cannot leave a half-written image in the app.
 for key, date in HERO.items():
     path = os.path.join(IMG_DIR, f"nashik_{key}.png")
-    fetch(date, 560, 440, path)
-    im = Image.open(path).convert("P", palette=Image.ADAPTIVE, colors=64)
-    im.save(path, optimize=True)
+    part = path + ".part"
+    fetch(date, 560, 440, part)
+    im = Image.open(part).convert("P", palette=Image.ADAPTIVE, colors=64)
+    im.save(part, format="PNG", optimize=True)
+    shutil.move(part, path)
     print(f"  hero {key:5} {date}  {os.path.getsize(path)//1024} KB")
 
 payload = {
