@@ -1,4 +1,4 @@
-name: Refresh satellite and soil data
+name: Refresh satellite, soil and sell timing
 
 # The slower-moving data, each on the cadence its source actually changes at.
 # Prices move daily and have their own workflow (refresh-prices.yml).
@@ -6,6 +6,8 @@ name: Refresh satellite and soil data
 #   satellite   — MODIS publishes a new 8-day composite about weekly: every Monday
 #   soil        — Soil Health Card uploads trickle in and a new cycle closes each
 #                 March: the 3rd of every month
+#   sell timing — rebuilt from Agmarknet's price history once a month closes:
+#                 the 3rd of every month
 #
 # Every script refuses to overwrite good data with a thin or empty response
 # (exit code 2), so a source outage leaves the app showing the last good copy.
@@ -18,13 +20,13 @@ name: Refresh satellite and soil data
 on:
   schedule:
     - cron: '0 3 * * 1'   # 08:30 IST Monday — satellite
-    - cron: '0 4 3 * *'   # 09:30 IST on the 3rd — soil
+    - cron: '0 4 3 * *'   # 09:30 IST on the 3rd — soil + sell timing
   workflow_dispatch:
     inputs:
       what:
         description: 'Which data to refresh'
         type: choice
-        options: [all, satellite, soil]
+        options: [all, satellite, soil, sell-timing]
         default: all
 
 permissions:
@@ -80,3 +82,26 @@ jobs:
         if: steps.fetch.outputs.code == '0'
         run: bash scripts/commit_data.sh "Refresh Soil Health Card district counts" src/data/soil.json
 
+  sell-timing:
+    if: github.event.schedule == '0 4 3 * *' || (github.event_name == 'workflow_dispatch' && (inputs.what == 'all' || inputs.what == 'sell-timing'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    concurrency: { group: refresh-sell-timing, cancel-in-progress: false }
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Fetch Agmarknet price history (10-15 minutes)
+        env:
+          DATA_GOV_KEY: ${{ secrets.DATA_GOV_KEY }}
+        run: |
+          if [ -z "$DATA_GOV_KEY" ]; then
+            echo "::error::DATA_GOV_KEY secret is not set. Add it in Settings > Secrets and variables > Actions."
+            exit 1
+          fi
+          python scripts/fetch_mandi_history.py
+      - name: Rebuild sell timing
+        run: python scripts/build_sell_timing.py
+      - name: Commit if changed
+        run: bash scripts/commit_data.sh "Refresh sell timing from Agmarknet price history" data/raw/mandi_monthly.json src/data/sellTiming.json
