@@ -167,8 +167,10 @@ payload = {
         "url": "https://gibs.earthdata.nasa.gov",
         "bbox": BBOX,
         "district": "Nashik",
-        "note": "Precomputed. MODIS is optical and cannot see through monsoon "
-                "cloud; obscured dates are flagged and excluded from the summary.",
+        "note": "Precomputed weekly by a scheduled job over the last 12 months. "
+                "MODIS is optical and cannot see through monsoon cloud; obscured "
+                "dates are flagged and excluded from the summary.",
+        "fetched": datetime.date.today().isoformat(),
     },
     "hero": {
         "dry": {"date": HERO["dry"], "img": "/satellite/nashik_dry.png"},
