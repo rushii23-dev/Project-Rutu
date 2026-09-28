@@ -51,7 +51,7 @@ Onset across Maharashtra spans **38 days**, from 3 June in Ratnagiri to 11 July 
 - **Regenerative rotation** — three seasons, with the soil-nitrogen trajectory
 - **Leaf disease diagnosis** from a photo, run on the phone, never uploaded
 - Live weather with sowing advice · real mandi prices · satellite vegetation
-- **Ask** — typed questions in Marathi, Hindi or English (sowing, selling, soil, prices, rain), answered from data we hold, never generated
+- **Ask** — typed or spoken questions in Marathi, Hindi or English (sowing, selling, soil, prices, rain), answered from data we hold, never generated
 - Installs as a PWA and works offline
 
 **State view** (`/policy`) — laptop-sized. All 36 districts mapped by onset shift and significance, plus the federation model: *models cross borders, farmer records do not.*
