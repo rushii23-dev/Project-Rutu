@@ -9,7 +9,8 @@ name: Refresh mandi prices
 # from a static file, and there is no server to run.
 #
 # A commit here triggers whatever is watching the repo (Vercel), so a refreshed
-# price file deploys itself.
+# price file deploys itself — and open or installed copies of the app re-fetch
+# /data/prices.json every 30 minutes, so they pick it up without an update.
 
 on:
   schedule:
@@ -61,28 +62,22 @@ jobs:
           set -e
           echo "code=$code" >> "$GITHUB_OUTPUT"
           # 2 = markets shut or barely trading (Sunday, holiday). Expected, not a failure.
-          # 1 = rate-limited or a blackout response. Worth a warning, not a red run.
+          # 1 = rate-limited, or data.gov.in down (it returns 502s for hours at a
+          #     time). Worth a warning, not a red run — the next run retries.
           case $code in
             0) echo "fetched a full trading day" ;;
             2) echo "::notice::Thin trading day — existing prices left untouched." ;;
-            1) echo "::warning::Fetch aborted (rate limit or empty response). Prices left untouched." ;;
+            1) echo "::warning::Fetch aborted (data.gov.in down or rate-limited). Prices left untouched." ;;
             *) echo "::error::Unexpected failure ($code)"; exit $code ;;
           esac
 
       - name: Commit if the file changed
+        if: steps.fetch.outputs.code == '0'
         run: |
-          if git diff --quiet -- src/data/prices.json; then
-            echo "no change — nothing to commit"
-            exit 0
-          fi
           FETCHED=$(python -c "import json;print(json.load(open('src/data/prices.json',encoding='utf-8'))['source']['fetched'])")
           COUNT=$(python -c "import json;print(len(json.load(open('src/data/prices.json',encoding='utf-8'))['districts']))")
-          git config user.name  "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add src/data/prices.json
-          git commit -m "Refresh mandi prices ($FETCHED, $COUNT districts)
+          bash scripts/commit_data.sh "Refresh mandi prices ($FETCHED, $COUNT districts)
 
           Automated by .github/workflows/refresh-prices.yml — Agmarknet via
           data.gov.in. The script refuses to overwrite a fuller day with a
-          thinner one, so a Sunday cannot wipe a Friday."
-          git push
+          thinner one, so a Sunday cannot wipe a Friday." src/data/prices.json
