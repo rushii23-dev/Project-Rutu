@@ -67,10 +67,13 @@ export function useForecast(district) {
     if (hit) setData(hit.data)
     else setData((cur) => (cur.districtId === district.id ? cur : loading(district.id)))
 
+    // Always fetch on open, even in a background tab: a tab preloaded before a
+    // demo, or a PWA restored with the screen off, must not sit on "fetching"
+    // until someone looks at it. Only the periodic re-checks skip hidden tabs.
+    refresh(district, key)
     const tick = () => {
       if (document.visibilityState !== 'hidden') refresh(district, key)
     }
-    tick()
     const timer = setInterval(tick, REFRESH_MS)
     document.addEventListener('visibilitychange', tick)
     window.addEventListener('online', tick)
