@@ -72,6 +72,7 @@ The deployment sends a strict Content-Security-Policy that allows only the app i
 
 - Open data formats throughout — JSON, NetCDF, CSV
 - Established statistical methods, named and cited: Theil–Sen, Mann–Kendall
+- The onset days behind every trend are **reproducible from raw rainfall**: `scripts/detect_onsets.py --check` regenerates them from the IMD grid and confirms the committed file byte for byte, and CI does this on every push along with lint, tests and a build.
 - Those methods are **independently verified**, not merely named. `scripts/verify_stats.py` checks the shipped
   implementations against scipy, pymannkendall and a permutation test, and reproduces every district from the
   raw onsets. A reviewer does not have to take the significance claim on trust.
