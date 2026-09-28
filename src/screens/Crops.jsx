@@ -4,7 +4,7 @@ import { useStore } from '../lib/store.jsx'
 import { fmtDate, getSeasons, getWaterLevels, rupees } from '../i18n/index.js'
 import { SAMPLE_CROPS, SEASON_KEYS } from '../data/crops.js'
 import { priceFor } from '../lib/prices.js'
-import { cropWindowStatus } from '../lib/season.js'
+import { cropWindow, cropWindowStatus } from '../lib/season.js'
 import { Chip, SampleBadge } from '../components/ui.jsx'
 
 export default function Crops() {
@@ -59,6 +59,10 @@ export default function Crops() {
               </Chip>
               {(() => {
                 const w = cropWindowStatus(c, district)
+                // this district's window, not the crop's fixed `sow` date — that
+                // printed "sow 13 June" in Ahmednagar, whose monsoon now arrives
+                // around 11 July, while the crop's own page said otherwise
+                const from = cropWindow(c, district).from
                 return (
                   <span
                     className={`rounded-2xl px-3.5 py-1.5 text-[13px] font-medium ${
@@ -69,7 +73,7 @@ export default function Crops() {
                           : 'bg-chip text-ink-2'
                     }`}
                   >
-                    {t('sowing')} {fmtDate(c.sow, lang)}
+                    {t('sowing')} {fmtDate(from, lang)}
                   </span>
                 )
               })()}
