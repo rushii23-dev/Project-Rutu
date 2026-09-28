@@ -44,11 +44,20 @@ async function getTf() {
  * diagnose and fail later with a parser error instead of saying the model is
  * not built. So we parse it and require it to look like a Keras manifest.
  */
+//
+// Returns true, false, or null when it could not tell (no connection). Only a
+// server answer is remembered: "offline" is not the same as "not deployed", and
+// caching it told a farmer the model did not exist after one wifi blip.
 let presence = null
 export async function modelAvailable() {
   if (presence !== null) return presence
+  let res
   try {
-    const res = await fetch(DISEASE_MODEL.url)
+    res = await fetch(DISEASE_MODEL.url)
+  } catch {
+    return null
+  }
+  try {
     if (!res.ok) throw new Error('http ' + res.status)
     const j = await res.json() // throws on the HTML fallback
     presence = Boolean(j && (j.modelTopology || j.weightsManifest))
@@ -97,17 +106,21 @@ function toSquareCanvas(img, size) {
  * Returns { ok, id, confidence, ranked } or { ok: false, reason }.
  */
 export async function diagnose(img) {
-  if (!(await modelAvailable())) return { ok: false, reason: 'no-model' }
+  const available = await modelAvailable()
+  if (available === false) return { ok: false, reason: 'no-model' }
+  if (available === null) return { ok: false, reason: 'no-runtime' }
 
-  let tf
+  // a failed download is not a bad photo — keep the two apart so the screen
+  // does not tell a farmer to retake a perfectly good picture
+  let tf, model
   try {
     tf = await getTf()
+    model = await getModel()
   } catch {
     return { ok: false, reason: 'no-runtime' }
   }
 
   try {
-    const model = await getModel()
     const canvas = toSquareCanvas(img, DISEASE_MODEL.input)
 
     // MobileNetV2 preprocessing: scale to [-1, 1]. Must match the training
