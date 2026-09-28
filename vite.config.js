@@ -70,7 +70,9 @@ export default defineConfig({
         // Precaching it would push that megabyte onto every farmer on 2G at
         // first load, which is exactly what the lazy import avoids. It is
         // fetched on demand and cached at runtime instead (rule below).
-        globIgnores: ['**/dist-*.js', '**/model/**'],
+        // Fonts too: all seven subsets are 600 KB, and a screen needs two or
+        // three. They are cached the first time a screen asks for them (below).
+        globIgnores: ['**/dist-*.js', '**/model/**', '**/fonts/**'],
         maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
         runtimeCaching: [
           {
@@ -108,7 +110,8 @@ export default defineConfig({
             },
           },
           {
-            urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com\/.*/i,
+            // self-hosted typefaces: fetched on first use, then kept offline
+            urlPattern: /\/fonts\/.*\.woff2$/,
             handler: 'CacheFirst',
             options: {
               cacheName: 'ritu-fonts',
