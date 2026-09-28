@@ -3,6 +3,7 @@ import { useStore } from '../lib/store.jsx'
 import { fmtDoy, rupees } from '../i18n/index.js'
 import { cropById } from '../data/crops.js'
 import { priceFor } from '../lib/prices.js'
+import { isPriceStale } from '../lib/priceAge.js'
 import { lateSowingCost, TRIAL } from '../lib/lateCost.js'
 
 /**
@@ -20,6 +21,8 @@ export default function LateCost({ detail = false }) {
   const price = priceFor(TRIAL.crop, districtId)
   const c = lateSowingCost(district, acres, price)
   if (!c) return null
+  // 'the latest price' is only true while it is recent; otherwise name its date
+  const oldPrice = isPriceStale(price)
 
   const L = (o) => o[lang]
   const soyName = cropById(TRIAL.crop).name
@@ -80,13 +83,19 @@ export default function LateCost({ detail = false }) {
                 hi: `लगभग ${qtl} क्विंटल ${soy} कम`,
                 en: `about ${qtl} quintals less ${soyMid}`,
               })}
-              {c.perQtl
+              {c.perQtl && oldPrice
                 ? L({
-                    mr: ` · ताजा बाजारभाव ₹${c.perQtl.toLocaleString('en-IN')}/क्विंटल`,
-                    hi: ` · ताज़ा मंडी भाव ₹${c.perQtl.toLocaleString('en-IN')}/क्विंटल`,
-                    en: ` · at the latest mandi price, ₹${c.perQtl.toLocaleString('en-IN')}/qtl`,
+                    mr: ` · ${price.date} चा बाजारभाव ₹${c.perQtl.toLocaleString('en-IN')}/क्विंटल`,
+                    hi: ` · ${price.date} का मंडी भाव ₹${c.perQtl.toLocaleString('en-IN')}/क्विंटल`,
+                    en: ` · at the ${price.date} mandi price, ₹${c.perQtl.toLocaleString('en-IN')}/qtl`,
                   })
-                : ''}
+                : c.perQtl
+                  ? L({
+                      mr: ` · ताजा बाजारभाव ₹${c.perQtl.toLocaleString('en-IN')}/क्विंटल`,
+                      hi: ` · ताज़ा मंडी भाव ₹${c.perQtl.toLocaleString('en-IN')}/क्विंटल`,
+                      en: ` · at the latest mandi price, ₹${c.perQtl.toLocaleString('en-IN')}/qtl`,
+                    })
+                  : ''}
               {c.priceScope === 'state'
                 ? L({ mr: ' (राज्य सरासरी)', hi: ' (राज्य औसत)', en: ' (state average)' })
                 : ''}
