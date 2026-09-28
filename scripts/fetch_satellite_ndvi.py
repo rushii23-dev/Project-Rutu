@@ -17,7 +17,7 @@ import json, os, urllib.request, urllib.parse
 import numpy as np
 from PIL import Image
 
-ROOT = r"D:/Project RITU"
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 IMG_DIR = os.path.join(ROOT, "public/satellite")
 OUT_JSON = os.path.join(ROOT, "src/data/ndvi.json")
 
