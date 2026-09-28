@@ -30,14 +30,18 @@ export default function Home() {
   // which sowing window today actually falls in, so the hero card cannot show a
   // date that has already passed
   const status = sowingStatus(SAMPLE_CROPS, district)
-  const showSeason = status.phase === 'next' ? status.season : season
-  const inSeason = SAMPLE_CROPS.filter((c) => c.season === showSeason).slice(0, 2)
+  const inSeason = SAMPLE_CROPS.filter((c) => c.season === status.season).slice(0, 2)
 
+  // Kharif windows hang off this district's corrected onset; rabi and summer
+  // are calendar windows. Only an onset window carries the monsoon story — the
+  // corrected date, the father's date, the shift. Keying this on phase instead
+  // showed "window open: 14 June" in November and "summer sowing closed, the
+  // corrected date was 14 June" in late May, three weeks BEFORE 14 June.
+  const onsetBased = status.basis === 'onset'
   const heroTitle =
-    status.phase === 'open' ? t('sowOpen') : status.phase === 'next' ? t('sowNext') : t('correctedSowing')
-  // upcoming/open lead with the corrected onset; once it has passed, lead with
-  // the next window that is actually actionable
-  const heroDate = status.phase === 'next' ? fmtDate(status.from, lang) : today
+    status.phase === 'open' ? t('sowOpen') : onsetBased ? t('correctedSowing') : t('sowNext')
+  const heroDate = onsetBased ? today : fmtDate(status.from, lang)
+
   // The farming year has three moments and the top of this screen follows
   // them. Rain-based sowing advice only while a rain-triggered sowing decision
   // is close; otherwise the crop already in the ground and this week's weather
@@ -161,11 +165,17 @@ export default function Home() {
               window: fmtWindow({ from: status.from, to: status.to }, lang),
             })}
           </Chip>
-          {status.phase !== 'next' ? <Chip>{t('oldDateChip', { date: father })}</Chip> : null}
+          {onsetBased ? <Chip>{t('oldDateChip', { date: father })}</Chip> : null}
         </div>
         <p className="mt-4 text-base leading-relaxed text-ink-2">
-          {status.phase === 'next'
-            ? t('windowPassed', { season: seasonNames[season], date: today })
+          {!onsetBased
+            ? season === 'kharif'
+              ? t('windowPassed', { season: seasonNames[season], date: today })
+              : {
+                  mr: 'रब्बी आणि उन्हाळी पेरणी पावसावर नाही, जमिनीतल्या ओलीवर आणि पाण्यावर होते — ही तारीख कॅलेंडरची आहे, मान्सूनवरून सरकवलेली नाही.',
+                  hi: 'रबी और गर्मी की बुवाई बारिश पर नहीं, ज़मीन की नमी और सिंचाई पर होती है — यह तारीख़ कैलेंडर की है, मानसून से खिसकाई नहीं गई.',
+                  en: 'Rabi and summer sowing run on soil moisture and irrigation, not rain — this is a calendar date, not shifted by the monsoon.',
+                }[lang]
             : onset.significant
               ? // Direction comes from the sign, never from a hardcoded word.
                 // Both significant districts happen to have moved earlier, so
