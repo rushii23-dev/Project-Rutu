@@ -2,7 +2,7 @@ import os, sys, json, time, datetime, urllib.request, urllib.parse
 import numpy as np
 from scipy.io import netcdf_file
 
-OUT = r"D:/Project RITU/data/raw"
+OUT = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data/raw")
 TMP = os.path.dirname(os.path.abspath(__file__))
 URL = "https://www.imdpune.gov.in/cmpg/Griddata/RF25.php"
 
