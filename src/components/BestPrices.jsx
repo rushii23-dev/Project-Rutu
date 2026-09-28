@@ -2,7 +2,8 @@ import { useNavigate } from 'react-router-dom'
 import { useStore } from '../lib/store.jsx'
 import { SAMPLE_CROPS } from '../data/crops.js'
 import { priceFor } from '../lib/prices.js'
-import { Card, EyebrowLabel } from './ui.jsx'
+import { isPriceStale, priceAgeDays } from '../lib/priceAge.js'
+import { Card, EyebrowLabel, PriceStamp } from './ui.jsx'
 
 /**
  * Where today's money is, in this district.
@@ -20,10 +21,12 @@ export default function BestPrices() {
     .filter((r) => r.price && r.price.scope === 'district' && r.price.bestPrice)
     .sort((a, b) => b.price.bestPrice - a.price.bestPrice)
     .slice(0, 4)
+  const latest = rows[0]?.price
+  const old = isPriceStale(latest)
 
   return (
     <Card className="mt-3 px-5 py-5">
-      <EyebrowLabel>{t('bestToday')}</EyebrowLabel>
+      <EyebrowLabel>{t(old ? 'bestLast' : 'bestToday')}</EyebrowLabel>
       <p className="mt-1 text-[13px] text-faint">
         {t('bestTodaySub', { d: districtName() })}
       </p>
@@ -58,7 +61,7 @@ export default function BestPrices() {
       )}
 
       {rows.length > 0 ? (
-        <div className="num mt-2 text-[11px] text-faint">Agmarknet · {rows[0].price.date}</div>
+        <PriceStamp date={latest.date} oldLabel={old ? t('priceOld', { n: priceAgeDays(latest) }) : null} />
       ) : null}
     </Card>
   )
