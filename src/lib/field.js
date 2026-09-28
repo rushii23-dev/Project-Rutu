@@ -1,5 +1,6 @@
-import { cropWindow } from './season.js'
-import { fmtIsoShort, relDayLabel } from '../i18n/index.js'
+import { cropWindow, rainDecidesSowing, sowingStatus } from './season.js'
+import { sowingAdvice } from '../data/weather.js'
+import { fmtDate, fmtIsoShort, fmtWindow, getSeasons, relDayLabel } from '../i18n/index.js'
 
 /**
  * The crop in the ground: what stage it is at today, and what this week's
@@ -114,6 +115,68 @@ export function forecastDayLabel(week, todayKey, lang) {
   return (iso) => {
     const r = relDayLabel(iso, todayKey, lang)
     return week.findIndex((d) => d.iso === iso) <= 1 ? r : `${r} ${fmtIsoShort(iso, lang)}`
+  }
+}
+
+/**
+ * The one piece of advice this week's forecast supports, for the Weather
+ * screen and the Ask answer. It follows the same order as Home, so the three
+ * screens cannot contradict each other:
+ *
+ *   sowing — a rain-triggered window is open or near: is there rain to sow on?
+ *   field  — a crop is in the ground: the most pressing weather risk to it
+ *   window — a calendar (rabi/summer) window is open: say so, not "wait for rain"
+ *   rest   — nothing to sow and nothing standing: when the next window opens
+ *
+ * Weather and Ask used to call sowingAdvice() unconditionally, so on
+ * 28 September — soybean at harvest — both told a Nashik farmer "rain is
+ * light, wait, sow after 50 mm", the exact line Home had already stopped
+ * saying.
+ */
+export function weekAdvice({ crops, district, week, lang, todayKey, fieldCrop, now = new Date() }) {
+  const status = sowingStatus(crops, district, now)
+  if (rainDecidesSowing(status)) return { kind: 'sowing', ...sowingAdvice(week, lang) }
+
+  const active = pickFieldCrop(cropsInField(crops, district, now), fieldCrop)
+  if (active && active.st.phase !== 'sold') {
+    const dayLabel = forecastDayLabel(week, todayKey, lang)
+    const top = fieldRisks({ crop: active.crop, st: active.st, week, lang, dayLabel })[0]
+    return { kind: 'field', crop: active.crop, tone: top.tone, title: top.title, body: top.body }
+  }
+
+  const season = getSeasons(lang)[status.season]
+  if (status.phase === 'open') {
+    const win = fmtWindow({ from: status.from, to: status.to }, lang)
+    return {
+      kind: 'window',
+      tone: 'good',
+      title: {
+        mr: `${season} पेरणीची खिडकी सुरू — ${win}`,
+        hi: `${season} बुवाई की खिड़की खुली — ${win}`,
+        en: `${season} sowing window open — ${win}`,
+      }[lang],
+      body: {
+        mr: `${status.days} दिवस बाकी. ही पेरणी पावसावर नाही, जमिनीतल्या ओलीवर किंवा पाण्यावर होते — म्हणून पावसाची वाट पाहू नका.`,
+        hi: `${status.days} दिन बाक़ी. यह बुवाई बारिश पर नहीं, ज़मीन की नमी या सिंचाई पर होती है — इसलिए बारिश का इंतज़ार न करें.`,
+        en: `${status.days} days left. This sowing runs on soil moisture or irrigation, not rain — so do not wait for rain.`,
+      }[lang],
+    }
+  }
+
+  const when = fmtDate(status.from, lang)
+  return {
+    kind: 'rest',
+    tone: 'good',
+    title: {
+      mr: 'या आठवड्यात पेरणीचा निर्णय नाही',
+      hi: 'इस हफ़्ते बुवाई का फ़ैसला नहीं',
+      en: 'No sowing decision this week',
+    }[lang],
+    body: {
+      mr: `पुढची पेरणी ${season} हंगामात — ${when} पासून, ${status.days} दिवसांनी.`,
+      hi: `अगली बुवाई ${season} मौसम में — ${when} से, ${status.days} दिन में.`,
+      en: `Next sowing is ${season}, from ${when} — in ${status.days} days.`,
+    }[lang],
   }
 }
 
