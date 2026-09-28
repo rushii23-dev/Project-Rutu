@@ -9,10 +9,12 @@ import { Card, Chip, EyebrowLabel } from '../components/ui.jsx'
 
 export default function Weather() {
   const { t, lang, village, district, districtName, fieldCrop } = useStore()
-  const { week, current, isSample, loading, stale, ageHours } = useForecast(district)
+  const { week, current, isSample, loading, stale, ageHours, fetchedAt } = useForecast(district)
   const today = useToday()
 
   const now = decodeWeather(current.code)
+  // Open-Meteo stamps current conditions in local time: '2026-09-28T14:15'
+  const updatedAt = fetchedAt ? fetchedAt.slice(11, 16) : null
   // same rule as Home: no advice at all from the sample week, and sowing advice
   // only while a rain-triggered sowing decision is actually close
   const advice = isSample
@@ -153,7 +155,13 @@ export default function Weather() {
                   mr: 'थेट अंदाज — Open-Meteo (विनामूल्य, API की लागत नाही).',
                   hi: 'लाइव अनुमान — Open-Meteo (निःशुल्क, API की ज़रूरत नहीं).',
                   en: 'Live forecast from Open-Meteo (free, no API key).',
-                }[lang]}
+                }[lang] + (updatedAt
+                  ? {
+                      mr: ` ${updatedAt} ची स्थिती; दर 15 मिनिटांनी आपोआप अद्ययावत.`,
+                      hi: ` ${updatedAt} की स्थिति; हर 15 मिनट में अपने-आप अपडेट.`,
+                      en: ` Conditions as of ${updatedAt}; refreshes itself every 15 minutes.`,
+                    }[lang]
+                  : '')}
       </p>
     </div>
   )
