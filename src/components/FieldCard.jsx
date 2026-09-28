@@ -1,9 +1,9 @@
 import { useNavigate } from 'react-router-dom'
 import { useStore } from '../lib/store.jsx'
-import { MONTHS, fmtIsoShort, relDayLabel, rupees } from '../i18n/index.js'
+import { MONTHS, rupees } from '../i18n/index.js'
 import { useToday } from '../lib/useToday.js'
 import { useForecast } from '../lib/useForecast.js'
-import { fieldRisks } from '../lib/field.js'
+import { fieldRisks, forecastDayLabel } from '../lib/field.js'
 import { sellAdvice } from '../lib/sell.js'
 import { priceFor } from '../lib/prices.js'
 import { SampleBadge } from './ui.jsx'
@@ -163,12 +163,7 @@ function Risks({ crop, st, lang, todayKey }) {
       </div>
     )
   }
-  // "Today" / "Tomorrow" alone; any later day also gets its date, so a warning
-  // can never be read against the wrong Wednesday
-  const dayLabel = (iso) => {
-    const r = relDayLabel(iso, todayKey, lang)
-    return week.findIndex((d) => d.iso === iso) <= 1 ? r : `${r} ${fmtIsoShort(iso, lang)}`
-  }
+  const dayLabel = forecastDayLabel(week, todayKey, lang)
   const risks = fieldRisks({ crop, st, week, lang, dayLabel }).slice(0, 3)
   return (
     <div className="flex flex-col gap-px border-t border-hair bg-hair">

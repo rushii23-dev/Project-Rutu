@@ -1,4 +1,5 @@
 import { cropWindow } from './season.js'
+import { fmtIsoShort, relDayLabel } from '../i18n/index.js'
 
 /**
  * The crop in the ground: what stage it is at today, and what this week's
@@ -103,6 +104,17 @@ export function pickFieldCrop(inField, chosenId) {
   return [...inField].sort(
     (a, b) => PRIORITY[a.st.phase] - PRIORITY[b.st.phase] || (b.crop.id === 'soy') - (a.crop.id === 'soy')
   )[0]
+}
+
+/**
+ * "Today" / "Tomorrow" alone; any later day also gets its date, so a warning
+ * can never be read against the wrong Wednesday.
+ */
+export function forecastDayLabel(week, todayKey, lang) {
+  return (iso) => {
+    const r = relDayLabel(iso, todayKey, lang)
+    return week.findIndex((d) => d.iso === iso) <= 1 ? r : `${r} ${fmtIsoShort(iso, lang)}`
+  }
 }
 
 /* ------------------------------------------------------------------ *
