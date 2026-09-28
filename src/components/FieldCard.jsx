@@ -243,17 +243,5 @@ function SellStrip({ crop, district, districtId, lang, nav }) {
   )
 }
 
-/**
- * Picks the crop to show: the farmer's own choice if it is still his to worry
- * about, otherwise the most pressing one — ready to harvest, then growing, then
- * harvested and waiting to be sold.
- */
-const PRIORITY = { harvest: 0, growing: 1, sold: 2 }
-export function pickFieldCrop(inField, chosenId) {
-  if (!inField.length) return null
-  const chosen = inField.find((x) => x.crop.id === chosenId)
-  if (chosen) return chosen
-  return [...inField].sort(
-    (a, b) => PRIORITY[a.st.phase] - PRIORITY[b.st.phase] || (b.crop.id === 'soy') - (a.crop.id === 'soy')
-  )[0]
-}
+// lives in lib/field.js now, beside the advice that also needs it
+export { pickFieldCrop } from '../lib/field.js'
