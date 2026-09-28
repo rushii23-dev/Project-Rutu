@@ -73,7 +73,7 @@ export default function SellTiming({ crop }) {
         <p className="mt-3 text-[15px] leading-relaxed text-ink-2">
           {a.verdict === 'hold'
             ? L({
-                mr: `${MF[a.month]}मध्ये विकण्याऐवजी ${a.best.wait} महिना थांबलेल्यांना साधारण ${a.best.gain}% जास्त भाव मिळाला. साठवणुकीचा ${HOLD_COST_PER_MONTH}% दरमहा खर्च वजा करूनही फायदा उरतो.`,
+                mr: `${MF[a.month]}मध्ये विकण्याऐवजी ${a.best.wait} ${a.best.wait > 1 ? 'महिने' : 'महिना'} थांबलेल्यांना साधारण ${a.best.gain}% जास्त भाव मिळाला. साठवणुकीचा ${HOLD_COST_PER_MONTH}% दरमहा खर्च वजा करूनही फायदा उरतो.`,
                 hi: `${MF[a.month]} में बेचने के बजाय ${a.best.wait} महीने रुकने वालों को आम तौर पर ${a.best.gain}% ज़्यादा भाव मिला. भंडारण का ${HOLD_COST_PER_MONTH}% प्रति माह ख़र्च घटाने के बाद भी फ़ायदा बचता है.`,
                 en: `Farmers who waited ${a.best.wait} month${a.best.wait > 1 ? 's' : ''} instead of selling in ${MF[a.month]} typically got ${a.best.gain}% more. That still clears a holding cost of ${HOLD_COST_PER_MONTH}% a month.`,
               })
