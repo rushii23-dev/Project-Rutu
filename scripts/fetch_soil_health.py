@@ -23,7 +23,19 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "src/data/soil.json")
 EP = "https://soilhealth4.dac.gov.in"
 SCHEME = "660f941a5c8405ca8375c7c6"  # "Soil Health Card RKVY", the portal's default
-CYCLES = ["2023-24", "2024-25", "2025-26"]
+def completed_cycles(today, n=3):
+    """The last n testing cycles that have ENDED, oldest first.
+
+    A cycle runs April to March ("2025-26" = Apr 2025 - Mar 2026). One still in
+    progress holds only the fields tested so far, and the app would lead with
+    that thin early sample, so it waits until its March is over. A monthly run
+    then picks up late uploads to the cycles already shown.
+    """
+    last = today.year - 1 if today.month >= 4 else today.year - 2
+    return [f"{y}-{(y + 1) % 100:02d}" for y in range(last - n + 1, last + 1)]
+
+
+CYCLES = completed_cycles(datetime.date.today())
 
 # Portal spellings -> our district ids
 TO_OURS = {
