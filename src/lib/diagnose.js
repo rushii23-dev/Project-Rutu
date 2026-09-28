@@ -22,8 +22,16 @@ import { DISEASE_MODEL, DISEASES, MIN_CONFIDENCE } from '../data/diseases.js'
 let tfPromise = null
 let modelPromise = null
 
+// Both downloads are memoised but forgotten on failure. Caching the rejected
+// promise meant one dropped connection broke every later diagnosis until the
+// page was reloaded — on venue wifi, that is the demo.
 async function getTf() {
-  if (!tfPromise) tfPromise = import('@tensorflow/tfjs')
+  if (!tfPromise) {
+    tfPromise = import('@tensorflow/tfjs').catch((e) => {
+      tfPromise = null
+      throw e
+    })
+  }
   return tfPromise
 }
 
@@ -58,7 +66,10 @@ async function getModel() {
       // needs the tf_keras compatibility stack, so train_disease.py exports a
       // SavedModel and converts that instead. loadLayersModel cannot read it.
       return tf.loadGraphModel(DISEASE_MODEL.url)
-    })()
+    })().catch((e) => {
+      modelPromise = null
+      throw e
+    })
   }
   return modelPromise
 }
