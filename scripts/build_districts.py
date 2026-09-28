@@ -3,12 +3,13 @@
 Districts with no statistically significant trend are marked significant:false so
 the UI can say so plainly instead of drawing a trend line that isn't there.
 """
-import json, statistics, math, datetime
+import json, os, statistics, math, datetime
 from collections import Counter
 
-RAW = r"D:/Project RITU/data/raw/imd_rainfall_maharashtra.json"
-ONS = r"D:/Project RITU/data/raw/onset_imd.json"
-OUT = r"D:/Project RITU/src/data/districts.json"
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+RAW = os.path.join(ROOT, "data/raw/imd_rainfall_maharashtra.json")
+ONS = os.path.join(ROOT, "data/raw/onset_imd.json")  # scripts/detect_onsets.py
+OUT = os.path.join(ROOT, "src/data/districts.json")
 PLOT = [150, 212]
 
 DEV = {
