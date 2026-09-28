@@ -1,8 +1,8 @@
 import { useEffect } from 'react'
-import { useLocation, useNavigate, useParams } from 'react-router-dom'
+import { Navigate, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useStore } from '../lib/store.jsx'
 import { fmtWindow, getSeasons, getWaterLevels, rupees } from '../i18n/index.js'
-import { cropById } from '../data/crops.js'
+import { cropById, SAMPLE_CROPS } from '../data/crops.js'
 import { priceFor } from '../lib/prices.js'
 import { isPriceStale, priceAgeDays } from '../lib/priceAge.js'
 import { Card, Chip, EyebrowLabel, PriceStamp, RoundIconButton, SampleBadge } from '../components/ui.jsx'
@@ -24,6 +24,10 @@ export default function CropDetail() {
     const el = document.getElementById(hash.slice(1))
     if (el) requestAnimationFrame(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }))
   }, [hash, id])
+
+  // A mistyped or stale link used to fall back to soybean silently, so
+  // /crops/wheet showed soybean under a wheat URL. Send it to the list instead.
+  if (!SAMPLE_CROPS.some((x) => x.id === id)) return <Navigate to="/crops" replace />
 
   const c = cropById(id)
   const seasonNames = getSeasons(lang)
