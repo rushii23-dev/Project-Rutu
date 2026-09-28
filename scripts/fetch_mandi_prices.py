@@ -49,6 +49,9 @@ FROM_AGMARK = {
 }
 
 
+NOW_IST = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=5, minutes=30)))
+
+
 def log(m):
     print(m, flush=True)
 
@@ -226,7 +229,11 @@ payload = {
         "resource": RESOURCE,
         "url": "https://data.gov.in/resource/current-daily-price-various-commodities-various-markets-mandi",
         "unit": "INR per quintal (100 kg)",
-        "fetched": datetime.datetime.now().strftime("%Y-%m-%d"),
+        # IST, not the machine's clock: the GitHub runner is on UTC
+        "fetched": NOW_IST.strftime("%Y-%m-%d"),
+        # full timestamp, so the app can tell the evening run from the morning
+        # run of the same day and swap in the fuller one
+        "fetchedAt": NOW_IST.isoformat(timespec="seconds"),
     },
     # The query is state-wide, so EVERY district was fetched. Districts absent
     # from `districts` had no arrivals today — which is a fact, not a gap.
