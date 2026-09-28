@@ -220,7 +220,7 @@ export default function Policy() {
                   </span>
                 </div>
                 <div className="mt-1 text-[13px] text-muted">
-                  {d.onset.slopePerDecade} days per decade · {d.division}
+                  {d.onset.slopePerDecade} days per decade · {d.division} division
                 </div>
               </div>
             ))}
