@@ -85,6 +85,18 @@ export default defineConfig({
             },
           },
           {
+            // live mandi prices: the newest deployed file when online, the
+            // last one seen when not (the bundled copy covers a first open)
+            urlPattern: /\/data\/prices\.json$/,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'ritu-prices',
+              networkTimeoutSeconds: 6,
+              expiration: { maxEntries: 2, maxAgeSeconds: 60 * 60 * 24 * 30 },
+              cacheableResponse: { statuses: [200] },
+            },
+          },
+          {
             // live forecast: try the network, fall back to the last good copy
             urlPattern: /^https:\/\/api\.open-meteo\.com\/.*/i,
             handler: 'NetworkFirst',
