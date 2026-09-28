@@ -1,0 +1,57 @@
+name: Check
+
+# Runs on every push and pull request. Two jobs, because they guard different
+# things:
+#
+#   app     — lint, the test suite and a production build. The date-driven
+#             sowing logic is exactly the kind of code that looks right on the
+#             day it is written and is wrong for the rest of the year.
+#   climate — the headline claim, from raw rainfall: the onset days reproduce
+#             byte for byte, the district trends rebuild unchanged, and the
+#             Theil-Sen / Mann-Kendall implementation agrees with scipy,
+#             pymannkendall and a permutation test. A hand-edited number cannot
+#             survive this job.
+#
+# The scheduled data refreshes push with the workflow token, which does not
+# trigger other workflows, so this runs on people's commits, not the bot's.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  app:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run check
+
+  climate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Onset days reproduce from IMD rainfall
+        run: python scripts/detect_onsets.py --check
+      - name: District trends rebuild unchanged
+        run: |
+          python scripts/build_districts.py
+          git diff --exit-code src/data/districts.json
+      - name: Trend statistics agree with independent implementations
+        run: |
+          pip install --quiet scipy pymannkendall
+          python scripts/verify_stats.py
