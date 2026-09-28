@@ -1,9 +1,11 @@
-name: Refresh satellite data
+name: Refresh satellite and soil data
 
 # The slower-moving data, each on the cadence its source actually changes at.
 # Prices move daily and have their own workflow (refresh-prices.yml).
 #
 #   satellite   — MODIS publishes a new 8-day composite about weekly: every Monday
+#   soil        — Soil Health Card uploads trickle in and a new cycle closes each
+#                 March: the 3rd of every month
 #
 # Every script refuses to overwrite good data with a thin or empty response
 # (exit code 2), so a source outage leaves the app showing the last good copy.
@@ -16,12 +18,13 @@ name: Refresh satellite data
 on:
   schedule:
     - cron: '0 3 * * 1'   # 08:30 IST Monday — satellite
+    - cron: '0 4 3 * *'   # 09:30 IST on the 3rd — soil
   workflow_dispatch:
     inputs:
       what:
         description: 'Which data to refresh'
         type: choice
-        options: [all, satellite]
+        options: [all, satellite, soil]
         default: all
 
 permissions:
@@ -52,4 +55,28 @@ jobs:
       - name: Commit if changed
         if: steps.fetch.outputs.code == '0'
         run: bash scripts/commit_data.sh "Refresh satellite greenness (NASA GIBS MODIS, last 12 months)" src/data/ndvi.json public/satellite
+
+  soil:
+    if: github.event.schedule == '0 4 3 * *' || (github.event_name == 'workflow_dispatch' && (inputs.what == 'all' || inputs.what == 'soil'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    concurrency: { group: refresh-soil, cancel-in-progress: false }
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Fetch Soil Health Card counts
+        id: fetch
+        run: |
+          set +e; python scripts/fetch_soil_health.py; code=$?; set -e
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+          case $code in
+            0) ;;
+            2) echo "::notice::Portal returned far fewer districts — soil data left untouched." ;;
+            *) echo "::error::Soil fetch failed ($code)"; exit $code ;;
+          esac
+      - name: Commit if changed
+        if: steps.fetch.outputs.code == '0'
+        run: bash scripts/commit_data.sh "Refresh Soil Health Card district counts" src/data/soil.json
 
