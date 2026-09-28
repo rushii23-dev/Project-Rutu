@@ -13,7 +13,7 @@ instead of quietly plotting them.
 
 Usage:  python scripts/fetch_satellite_ndvi.py
 """
-import json, os, urllib.request, urllib.parse
+import datetime, json, os, urllib.request, urllib.parse
 import numpy as np
 from PIL import Image
 
@@ -27,14 +27,26 @@ LAYER = "MODIS_Terra_NDVI_8Day"
 # Nashik district bounding box (lon_min, lat_min, lon_max, lat_max)
 BBOX = "73.0,19.4,74.9,20.9"
 
-# roughly fortnightly through one full cropping year
-DATES = [
-    "2025-01-17", "2025-02-02", "2025-02-18", "2025-03-06", "2025-03-22",
-    "2025-04-07", "2025-04-23", "2025-05-09", "2025-05-25", "2025-06-10",
-    "2025-06-26", "2025-07-12", "2025-07-28", "2025-08-13", "2025-08-29",
-    "2025-09-14", "2025-09-30", "2025-10-16", "2025-11-01", "2025-11-17",
-    "2025-12-03", "2025-12-19",
-]
+
+def rolling_dates(today, days=365, lag=16):
+    """Fortnightly composite dates covering the last year, oldest first.
+
+    MODIS 8-day composites start on day-of-year 1, 9, 17, ... every year; every
+    second one gives a fortnightly series. A composite is only published some
+    days after its 8-day period closes, so the newest `lag` days are skipped
+    rather than recorded as missing.
+    """
+    out = []
+    for year in (today.year - 1, today.year):
+        for doy in range(1, 366, 16):
+            d = datetime.date(year, 1, 1) + datetime.timedelta(days=doy - 1)
+            if today - datetime.timedelta(days=days) <= d <= today - datetime.timedelta(days=lag):
+                out.append(d.isoformat())
+    return out
+
+
+# a rolling cropping year, so a weekly run always shows the latest one
+DATES = rolling_dates(datetime.date.today())
 
 # the two frames the interface shows side by side
 HERO = {"dry": "2025-05-09", "peak": "2025-10-16"}
