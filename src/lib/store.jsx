@@ -75,13 +75,17 @@ export function StoreProvider({ children }) {
   // A hidden tab does not poll — it catches up the moment it is looked at.
   useEffect(() => {
     let last = 0
-    const check = async () => {
-      if (document.visibilityState === 'hidden') return
-      if (Date.now() - last < 60 * 1000) return // focus + visibility fire together
+    const run = async () => {
       last = Date.now()
       if (await refreshPrices()) setDataVersion((v) => v + 1)
     }
-    check()
+    const check = () => {
+      if (document.visibilityState === 'hidden') return
+      if (Date.now() - last < 60 * 1000) return // focus + visibility fire together
+      run()
+    }
+    // on open, always — even a tab opened in the background gets today's prices
+    run()
     const timer = setInterval(check, PRICE_CHECK_MS)
     document.addEventListener('visibilitychange', check)
     window.addEventListener('online', check)
