@@ -74,7 +74,7 @@ The app labels its own limits on screen, not just here.
 
 The disease model declines to answer below 60% confidence, and warns when the answer is one of the two classes it genuinely confuses.
 
-The statistics are verified against scipy, pymannkendall and a permutation test — run `python scripts/verify_stats.py`.
+The onset days come from [`scripts/detect_onsets.py`](scripts/detect_onsets.py): first day from 1 June to 31 August with 25 mm over 7 days and no dry spell over 7 days in the following 30. `python scripts/detect_onsets.py --check` regenerates them from the IMD rainfall and confirms the committed file byte for byte. The statistics are verified against scipy, pymannkendall and a permutation test — run `python scripts/verify_stats.py`. Every push runs both, and rebuilds the district trends, in [`check.yml`](.github/workflows/check.yml).
 
 ## Run it
 
