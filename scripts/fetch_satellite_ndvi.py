@@ -13,7 +13,7 @@ instead of quietly plotting them.
 
 Usage:  python scripts/fetch_satellite_ndvi.py
 """
-import datetime, json, os, urllib.request, urllib.parse
+import datetime, json, os, sys, urllib.request, urllib.parse
 import numpy as np
 from PIL import Image
 
@@ -55,6 +55,7 @@ DATES = rolling_dates(datetime.date.today())
 # in an early-onset district June can already be sown.
 DRY_MONTHS = (3, 4, 5)
 PEAK_MONTHS = (8, 9, 10, 11, 12)
+MIN_USABLE = 8  # fewer clear readings than this and the year is not worth shipping
 
 
 def fetch(date, width, height, path):
@@ -137,6 +138,12 @@ def pick(months, best):
     inside = [s for s in valid if int(s["date"][5:7]) in months]
     return best(inside or valid, key=lambda s: s["index"])
 
+
+# Guard before touching anything on disk: GIBS outages come back as blank
+# tiles, which would otherwise replace a good year with an empty one.
+if len(valid) < MIN_USABLE and "--force" not in sys.argv:
+    print(f"\nABORTED: only {len(valid)} clear readings (need {MIN_USABLE}). {OUT_JSON} and images left untouched.")
+    raise SystemExit(2)
 
 lo = pick(DRY_MONTHS, min)
 hi = pick(PEAK_MONTHS, max)
