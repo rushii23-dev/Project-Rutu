@@ -4,7 +4,8 @@ import { useStore } from '../lib/store.jsx'
 import { fmtWindow, getSeasons, getWaterLevels, rupees } from '../i18n/index.js'
 import { cropById } from '../data/crops.js'
 import { priceFor } from '../lib/prices.js'
-import { Card, Chip, EyebrowLabel, RoundIconButton, SampleBadge } from '../components/ui.jsx'
+import { isPriceStale, priceAgeDays } from '../lib/priceAge.js'
+import { Card, Chip, EyebrowLabel, PriceStamp, RoundIconButton, SampleBadge } from '../components/ui.jsx'
 import Rotation from '../components/Rotation.jsx'
 import Resilience from '../components/Resilience.jsx'
 import SellTiming from '../components/SellTiming.jsx'
@@ -28,6 +29,8 @@ export default function CropDetail() {
   const seasonNames = getSeasons(lang)
   const waterNames = getWaterLevels(lang)
   const price = priceFor(c.id, districtId)
+  // never head an old price "today's" — data.gov.in has gone down for days
+  const priceOld = isPriceStale(price)
   const win = cropWindowStatus(c, district)
   const winLabel = {
     open: t('winOpenNow', { n: win.days }),
@@ -58,7 +61,7 @@ export default function CropDetail() {
       {/* real Agmarknet price — the one money figure that is not a sample */}
       <Card className="mt-4 px-6 py-5">
         <div className="flex items-baseline justify-between">
-          <EyebrowLabel>{t('mandiPrice')}</EyebrowLabel>
+          <EyebrowLabel>{t(priceOld ? 'mandiPriceLast' : 'mandiPrice')}</EyebrowLabel>
           {price && price.scope !== 'none' ? (
             <span className="text-[11px] font-medium text-faint">
               {price.scope === 'state' ? t('stateAvg') : t('nMarkets', { n: price.markets })}
@@ -82,7 +85,10 @@ export default function CropDetail() {
                 <span className="num">₹{price.bestPrice.toLocaleString('en-IN')}</span>
               </div>
             ) : null}
-            <div className="num mt-1 text-[11px] text-faint">Agmarknet · {price.date}</div>
+            <PriceStamp
+              date={price.date}
+              oldLabel={priceOld ? t('priceOld', { n: priceAgeDays(price) }) : null}
+            />
 
             {/* every market that traded today, best-paying first — this is the
                 sell-where decision, at the finest resolution the source gives */}

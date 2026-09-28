@@ -93,6 +93,18 @@ export function SampleBadge({ children }) {
   )
 }
 
+/** "Agmarknet · 21/09/2026", with a warning chip beside it once the price is old. */
+export function PriceStamp({ date, oldLabel }) {
+  return (
+    <div className="num mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-faint">
+      <span>Agmarknet · {date}</span>
+      {oldLabel ? (
+        <span className="rounded-lg bg-warn-l px-2 py-0.5 font-semibold text-warn-m">{oldLabel}</span>
+      ) : null}
+    </div>
+  )
+}
+
 export function AlertCard({ tone = 'warn', title, body }) {
   const good = tone === 'good'
   return (
