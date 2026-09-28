@@ -172,12 +172,30 @@ export default function Diagnose() {
       {/* ---------------- result ---------------- */}
       {result && !result.ok ? (
         <Card className="mt-3 px-5 py-4">
-          <div className="text-[17px] font-semibold text-ink">
-            {result.reason === 'no-model' ? t('dxNoModel') : t('dxFailed')}
-          </div>
-          <p className="mt-1 text-[15px] leading-relaxed text-muted">
-            {result.reason === 'no-model' ? t('dxNoModelBody') : t('dxFailedBody')}
-          </p>
+          {result.reason === 'no-runtime' ? (
+            // the checker never downloaded — the photo is fine, the signal is not
+            <>
+              <div className="text-[17px] font-semibold text-ink">
+                {{ mr: 'तपासनीस डाउनलोड झाला नाही', hi: 'जाँच डाउनलोड नहीं हुई', en: 'Could not download the checker' }[lang]}
+              </div>
+              <p className="mt-1 text-[15px] leading-relaxed text-muted">
+                {{
+                  mr: 'फोटो ठीक आहे. एकदा इंटरनेट मिळालं की पुन्हा "तपासा" दाबा — त्यानंतर हे विना इंटरनेट चालेल.',
+                  hi: 'फ़ोटो ठीक है. इंटरनेट मिलते ही फिर से "जाँचें" दबाएँ — उसके बाद यह बिना इंटरनेट चलेगा.',
+                  en: 'The photo is fine. Tap "Check it" again once you have signal — after that it works offline.',
+                }[lang]}
+              </p>
+            </>
+          ) : (
+            <>
+              <div className="text-[17px] font-semibold text-ink">
+                {result.reason === 'no-model' ? t('dxNoModel') : t('dxFailed')}
+              </div>
+              <p className="mt-1 text-[15px] leading-relaxed text-muted">
+                {result.reason === 'no-model' ? t('dxNoModelBody') : t('dxFailedBody')}
+              </p>
+            </>
+          )}
         </Card>
       ) : null}
 
