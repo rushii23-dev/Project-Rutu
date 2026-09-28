@@ -2,17 +2,22 @@ import { useStore } from '../lib/store.jsx'
 import { useForecast } from '../lib/useForecast.js'
 import { fmtIsoLong, fmtIsoShort, relDayLabel } from '../i18n/index.js'
 import { useToday } from '../lib/useToday.js'
-import { decodeWeather, sowingAdvice } from '../data/weather.js'
+import { decodeWeather } from '../data/weather.js'
+import { SAMPLE_CROPS } from '../data/crops.js'
+import { weekAdvice } from '../lib/field.js'
 import { Card, Chip, EyebrowLabel } from '../components/ui.jsx'
 
 export default function Weather() {
-  const { t, lang, village, district, districtName } = useStore()
+  const { t, lang, village, district, districtName, fieldCrop } = useStore()
   const { week, current, isSample, loading, stale, ageHours } = useForecast(district)
   const today = useToday()
 
   const now = decodeWeather(current.code)
-  // same rule as Home: no sowing instruction is issued from the sample week
-  const advice = isSample ? null : sowingAdvice(week, lang)
+  // same rule as Home: no advice at all from the sample week, and sowing advice
+  // only while a rain-triggered sowing decision is actually close
+  const advice = isSample
+    ? null
+    : weekAdvice({ crops: SAMPLE_CROPS, district, week, lang, todayKey: today, fieldCrop })
 
   return (
     <div className="px-5 pb-[130px] pt-4">
