@@ -13,10 +13,13 @@ name: Refresh mandi prices
 
 on:
   schedule:
-    # 08:00 and 18:00 IST. Arrivals trickle in through the trading day, so the
-    # evening run usually has fuller coverage than the morning one.
+    # 08:00, 12:00, 16:00 and 20:00 IST. Arrivals trickle in through the trading
+    # day, so later runs usually have fuller coverage; a run that finds nothing
+    # new commits nothing.
     - cron: '30 2 * * *'
-    - cron: '30 12 * * *'
+    - cron: '30 6 * * *'
+    - cron: '30 10 * * *'
+    - cron: '30 14 * * *'
   workflow_dispatch:
     inputs:
       force:
@@ -34,6 +37,7 @@ permissions:
 jobs:
   refresh:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v5
 
