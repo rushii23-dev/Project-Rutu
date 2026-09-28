@@ -17,7 +17,7 @@ does not call the difference a trend.
 Output: src/data/soil.json
 Usage:  python scripts/fetch_soil_health.py      (about a minute, no key)
 """
-import datetime, json, os, time, urllib.request
+import datetime, json, os, sys, time, urllib.request
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "src/data/soil.json")
@@ -143,6 +143,16 @@ payload = {
     "labels": {k: list(v) for k, v in KEEP.items()},
     "districts": dict(sorted(out.items())),
 }
+# The portal is the only source and it changes without notice. A run that comes
+# back with far fewer districts than we already hold is a portal problem, not
+# soil going missing — keep the good file rather than ship the hole.
+if os.path.exists(OUT) and "--force" not in sys.argv:
+    prev = json.load(open(OUT, encoding="utf-8")).get("districts", {})
+    if prev and len(out) < 0.8 * len(prev):
+        print(f"\nABORTED: {len(out)} districts now vs {len(prev)} on disk. {OUT} left untouched.")
+        print("  Re-run later, or pass --force if the portal really did drop them.")
+        raise SystemExit(2)
+
 json.dump(payload, open(OUT, "w", encoding="utf-8"), ensure_ascii=False, separators=(",", ":"))
 print(f"\nwrote {OUT}: {len(out)} districts")
 missing = sorted(ours - set(out))
