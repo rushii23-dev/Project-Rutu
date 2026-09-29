@@ -515,7 +515,7 @@ const STRINGS = {
   },
 
   en: {
-    brand: 'RITU',
+    brand: 'RUTU',
     districtSuffix: 'district',
     tagline1: 'The climate moved.',
     tagline2: 'Now the knowledge moves too.',
@@ -632,7 +632,7 @@ const STRINGS = {
     myRecords: 'My records',
     help: 'Help',
     language: 'Language',
-    version: 'RITU {v} · Data: IMD',
+    version: 'RUTU {v} · Data: IMD',
 
     nav_home: 'Home',
     nav_crops: 'Crops',

@@ -234,7 +234,7 @@ export default function Policy() {
             <p className="mt-3 text-[16px] leading-relaxed text-muted">
               States will not share raw farmer data, and nations share it less readily
               still — it is politically and legally fraught, and they are right to
-              refuse. So RITU shares the <b className="text-ink">method</b>, not the
+              refuse. So RUTU shares the <b className="text-ink">method</b>, not the
               records. That is what makes a second node possible at all.
             </p>
 
@@ -360,7 +360,7 @@ export default function Policy() {
             India uses IMD&rsquo;s national gridded archive because it is the finest
             available here. Where a nation has no comparable national product, ECMWF
             ERA5 covers the whole globe from 1940 at no cost — the same free
-            infrastructure RITU already calls for its forecasts. The barrier to a second
+            infrastructure RUTU already calls for its forecasts. The barrier to a second
             node is agreement on the onset rule, not data access.
           </p>
         </section>

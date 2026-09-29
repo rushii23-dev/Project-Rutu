@@ -41,7 +41,7 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['satellite/*.png'],
       manifest: {
-        name: 'RITU — ऋतु',
+        name: 'RUTU — ऋतु',
         short_name: 'ऋतु',
         description: 'हवामान बदललं. आता माहितीही बदलेल.',
         lang: 'mr',
