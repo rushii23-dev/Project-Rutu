@@ -45,7 +45,7 @@ Onset across Maharashtra spans **38 days**, from 3 June in Ratnagiri to 11 July 
 - **What the old date costs, in rupees** — from a published field trial and the day's mandi price, with the trial's measured yields on screen
 - **The farming year, not just sowing** — once the crop is in, the home screen follows it: estimated stage, and this week's forecast turned into field warnings (rain at harvest, heavy rain, heat at flowering, frost, a dry week, whether to spray today)
 - **When to sell** — 11 years of real Agmarknet prices per district: sell at harvest, or hold, and in how many years holding actually paid
-- **District soil** — Soil Health Card results for 926,596 field tests across 34 districts (2025-26 cycle), shown as the odds for *your* field, with what to do about them
+- **District soil** — Soil Health Card results for about 926,000 field tests across 34 districts (2025-26 cycle, refreshed monthly), shown as the odds for *your* field, with what to do about them
 - **Which crop, and why not the others** — every crop of the season ranked side by side, each one given its own reason for losing, priced in rupees, with the ranking model printed on the screen
 - **Climate-resilience score** per crop, from that district's rainfall record
 - **Regenerative rotation** — three seasons, with the soil-nitrogen trajectory
